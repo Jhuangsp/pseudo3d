@@ -38,6 +38,7 @@ class trackDetector(object):
         self.H = H
         self.o_wcs = (177.5, 480.0)
         self.campos = campos
+        self.camera_wcs = [0.0, -15.588457268119896, 8.999999999999998]
 
     def set2Dtrack(self, track2D):
         # Shift origin to principal point
@@ -54,9 +55,11 @@ class trackDetector(object):
 
         # 2D track described in WCS
         # self.track2D_wcs = self.campos.ccs2wcs(self.track2D_ccs)
-        print("2D CCS")
+        print("2D in CCS")
         pp.pprint(self.track2D_ccs)
         self.track2D_wcs = ccs2wcs(self.track2D_ccs)
+        print("2D in WCS")
+        pp.pprint(self.track2D_wcs)
 
     def setShotPoint2d(self, strat, end):
         # Transform image point to WCS
@@ -81,29 +84,20 @@ class trackDetector(object):
     def setTrackPlane(self):
         # Calculate the Normal vector of the Track Plane
         direction = self.end_wcs - self.strat_wcs
-        self.N = np.array([direction[1], direction[0], 0])
+        self.N = np.array([direction[1], -direction[0], 0])
         self.N /= np.linalg.norm(self.N)
+        print("N of track plane")
+        pp.pprint(self.N)
 
     def get3Dtrack(self):
-        pp.pprint(self.strat_wcs)
-        pp.pprint([0.0, -15.588457268119896, 8.999999999999998])
-        pp.pprint(self.strat_wcs - [0.0, -15.588457268119896, 8.999999999999998])
-        pp.pprint(self.track2D_wcs)
-        self.t = (self.strat_wcs - [0.0, -15.588457268119896, 8.999999999999998])[:2] / self.track2D_wcs[:,:2]
-        pp.pprint(self.t)
-        self.mask = np.ones(self.t.shape, bool)
-        if self.N[0] == 0:
-            self.mask = np.logical_xor(self.mask, self.t==np.inf)
-            self.mask[:,0] == False
-        if self.N[1] == 0:
-            self.mask = np.logical_xor(self.mask, self.t==np.inf)
-            self.mask[:,1] == False
-        else:
-            self.mask = np.logical_xor(self.mask, self.t==np.inf)
+        self.molecular = ((self.strat_wcs - self.camera_wcs) * self.N).sum()
+        self.decimal = (self.track2D_wcs * self.N).sum(axis=1)
 
-        self.t = (self.t * self.mask).max(axis=1).reshape(-1,1)
-        pp.pprint(self.t)
-        self.track3D_wcs = self.track2D_wcs * self.t + [0.0, -15.588457268119896, 8.999999999999998]
+        self.t = (self.molecular/self.decimal).reshape(-1,1)
+        print("scale factor from 2D to 3D")
+        print(self.t)
+        self.track3D_wcs = self.track2D_wcs * self.t + self.camera_wcs
+        print("3D in WCS")
         pp.pprint(self.track3D_wcs)
 
 
@@ -148,7 +142,8 @@ if __name__ == '__main__':
         track2D = np.where(np.all(tra==[255,0,255], axis=-1))
         track2D = np.moveaxis(np.array((track2D[1], track2D[0])), 0, -1)
         cluster = MeanShift(bandwidth=2).fit(track2D)
-        print(cluster.cluster_centers_)
+        print("2D in ICS")
+        print(cluster.cluster_centers_[:5])
         start = np.array([-1.5, 2, 0])
         end   = np.array([2, -5.5, 0])
         # start = np.where(np.all(tra==[0,255,255], axis=-1))
@@ -162,7 +157,7 @@ if __name__ == '__main__':
                       [-0.0025994988668978703, 8.481073794245475, -1808.4793238629488], 
                       [-1.732999358826142e-05, 0.0054985503952042665, 1.0]])
         td = trackDetector(cmtx_new, H, campos)
-        td.set2Dtrack(cluster.cluster_centers_)
+        td.set2Dtrack(cluster.cluster_centers_[:5])
         td.setShotPoint3d(start, end)
         td.setTrackPlane()
         td.get3Dtrack()
