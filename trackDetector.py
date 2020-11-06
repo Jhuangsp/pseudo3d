@@ -6,6 +6,8 @@ import argparse
 import CameraPose as cp
 import pprint
 
+from tracker2D import tracker2D
+
 pp = pprint.PrettyPrinter(indent=4)
 
 def ccs2wcs(points):
@@ -30,14 +32,14 @@ def ccs2wcs(points):
 
 class trackDetector(object):
     """docstring for trackDetector"""
-    def __init__(self, intrinsic, H, campos):
+    def __init__(self, intrinsic, H):
         super(trackDetector, self).__init__()
         self.f = (intrinsic[0,0] + intrinsic[1,1]) / 2
         self.p = (intrinsic[0,2], intrinsic[1,2])
         # src_pts = [(-3.05, 6.7), (3.05, 6.7), (3.05, -6.7), (-3.05, -6.7)]
         self.H = H
         self.o_wcs = (177.5, 480.0)
-        self.campos = campos
+        # self.campos = campos
         self.camera_wcs = [0.0, -15.588457268119896, 8.999999999999998]
 
     def set2Dtrack(self, track2D):
@@ -99,6 +101,7 @@ class trackDetector(object):
         self.track3D_wcs = self.track2D_wcs * self.t + self.camera_wcs
         print("3D in WCS")
         pp.pprint(self.track3D_wcs)
+        return self.track3D_wcs
 
 
 if __name__ == '__main__':
@@ -124,7 +127,6 @@ if __name__ == '__main__':
         name = '.'.join(name)
         print('------------ Starting', name, '------------')
         img = cv2.imread(image)
-        tra = cv2.imread(track)
         with open(label, 'r') as fy:
             data = yaml.load(fy, Loader=yaml.FullLoader)
         assert data['pattern'] == 'two_circle', 'The label pattern must be \'two_circle\' not {}'.format(data['pattern'])
@@ -139,11 +141,10 @@ if __name__ == '__main__':
         campos = cp.CameraPose(img, cmtx_new, None, radius=data['radius'], saveImgs=name)
         cam_r = campos.getCameraPose()
 
-        track2D = np.where(np.all(tra==[255,0,255], axis=-1))
-        track2D = np.moveaxis(np.array((track2D[1], track2D[0])), 0, -1)
-        cluster = MeanShift(bandwidth=2).fit(track2D)
+        tk2D = tracker2D(track)
+        track2D = tk2D.getTrack2D()
         print("2D in ICS")
-        print(cluster.cluster_centers_[:5])
+        print(track2D)
         start = np.array([-1.5, 2, 0])
         end   = np.array([2, -5.5, 0])
         # start = np.where(np.all(tra==[0,255,255], axis=-1))
@@ -156,8 +157,8 @@ if __name__ == '__main__':
         H = np.array([[1.937212133548434, 0.9723841192392153, -1056.6377626494277], 
                       [-0.0025994988668978703, 8.481073794245475, -1808.4793238629488], 
                       [-1.732999358826142e-05, 0.0054985503952042665, 1.0]])
-        td = trackDetector(cmtx_new, H, campos)
-        td.set2Dtrack(cluster.cluster_centers_[:5])
+        td = trackDetector(cmtx_new, H)
+        td.set2Dtrack(track2D)
         td.setShotPoint3d(start, end)
         td.setTrackPlane()
         td.get3Dtrack()
