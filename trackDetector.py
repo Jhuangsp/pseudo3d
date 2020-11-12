@@ -32,7 +32,7 @@ def ccs2wcs(points):
 
 class trackDetector(object):
     """docstring for trackDetector"""
-    def __init__(self, intrinsic, H):
+    def __init__(self, intrinsic, H, camCenter, c2w):
         super(trackDetector, self).__init__()
         self.f = (intrinsic[0,0] + intrinsic[1,1]) / 2
         self.p = (intrinsic[0,2], intrinsic[1,2])
@@ -40,7 +40,8 @@ class trackDetector(object):
         self.H = H
         self.o_wcs = (177.5, 480.0)
         # self.campos = campos
-        self.camera_wcs = [0.0, -15.588457268119896, 8.999999999999998]
+        self.camera_wcs = camCenter
+        self.c2w = c2w
 
     def set2Dtrack(self, track2D):
         # Shift origin to principal point
@@ -59,7 +60,8 @@ class trackDetector(object):
         # self.track2D_wcs = self.campos.ccs2wcs(self.track2D_ccs)
         print("2D in CCS")
         pp.pprint(self.track2D_ccs)
-        self.track2D_wcs = ccs2wcs(self.track2D_ccs)
+        # self.track2D_wcs = ccs2wcs(self.track2D_ccs)
+        self.track2D_wcs = (self.c2w @ self.track2D_ccs.T).T
         print("2D in WCS")
         pp.pprint(self.track2D_wcs)
 
@@ -157,7 +159,11 @@ if __name__ == '__main__':
         H = np.array([[1.937212133548434, 0.9723841192392153, -1056.6377626494277], 
                       [-0.0025994988668978703, 8.481073794245475, -1808.4793238629488], 
                       [-1.732999358826142e-05, 0.0054985503952042665, 1.0]])
-        td = trackDetector(cmtx_new, H)
+        td = trackDetector(cmtx_new, H, 
+            [0.0, -15.588457268119896, 8.999999999999998], 
+            np.array([[1,0,0], 
+                [0,-0.5,0.8660254037844387], 
+                [0,-0.8660254037844387,-0.5]]))
         td.set2Dtrack(track2D)
         td.setShotPoint3d(start, end)
         td.setTrackPlane()

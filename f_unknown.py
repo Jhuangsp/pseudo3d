@@ -8,13 +8,11 @@ from OpenGL.GLU import *
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from math import sqrt, pi, sin, cos, tan
-from PIL import Image
-from PIL import ImageOps
 
 from Hfinder import Hfinder
 from trackDetector import trackDetector
 from generator import startGL, readPose, toRad, toDeg, drawCourt, drawCircle, patternCircle, drawTrack
-from curveGenerator import curveGenerator
+# from curveGenerator import curveGenerator
 from tracker2D import tracker2D
 
 np.set_printoptions(precision=4)
@@ -40,6 +38,7 @@ class trackFinder(object):
         self.cfg = json.load(f)
         f.close()
         self.args = args
+        self.gt = True
 
         # Opengl param
         self.imgshape = self.img.shape[:2]
@@ -48,7 +47,8 @@ class trackFinder(object):
         self.obj = np.zeros(3)
         self.up = np.zeros(3)
         self.quadric = gluNewQuadric()
-        self.court2D = [[776, 325], [1141, 325], [1318, 929], [601, 929]]
+        # self.court2D = [[776, 325], [1141, 325], [1318, 929], [601, 929]]
+        self.court2D = []
         self.court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
 
         # Curve param
@@ -58,6 +58,7 @@ class trackFinder(object):
 
         # Changable factor
         self.f = self.args.height / (2*tan(pi*self.args.fovy/360))
+        self._f = self.f
         self.rad = 0
         # Changable affact
         self.K = self.getK()
@@ -184,7 +185,14 @@ class trackFinder(object):
         # print(z_2d.T)
         # print("\n")
 
-        td = trackDetector(self.K, self.H)
+        if self.gt:
+            td = trackDetector(self.K, self.H, 
+                [0.0, -15.588457268119896, 8.999999999999998], 
+                np.array([[1,0,0], 
+                    [0,-0.5,0.8660254037844387], 
+                    [0,-0.8660254037844387,-0.5]]))
+        else:
+            td = trackDetector(self.K, self.H, cam_position_wcs.T, self.c2w)
         td.set2Dtrack(self.track2D)
         td.setShotPoint3d(self.start_wcs, self.end_wcs)
         td.setTrackPlane()
@@ -211,12 +219,15 @@ def keyboardFunc(c, x, y):
     elif ord(c.decode('utf-8')) == ord('s') or ord(c.decode('utf-8')) == ord('S'):
         tf.f -= 100
         glutPostRedisplay()
+    elif ord(c.decode('utf-8')) == ord(' '):
+        tf.gt = not tf.gt
+        glutPostRedisplay()
 
-def sphere(x, y, z):
+def sphere(x, y, z, color, size=0.05):
     global tf
-    glColor3f(0, 1, 1)
+    glColor3f(color[0], color[1], color[2])
     glTranslatef(x, y, z)
-    gluSphere(tf.quadric, 0.05, 32, 32)
+    gluSphere(tf.quadric, size, 32, 32)
     glTranslatef(-x, -y, -z)
 
 def drawFunc():
@@ -274,7 +285,11 @@ def drawFunc():
     pred = tf.updateF()
     # print(pred)
     for i in pred:
-        sphere(i[0], i[1], i[2])
+        size = 0.05 if tf._f!=tf.f else 0.03
+        if tf.gt:
+            sphere(i[0], i[1], i[2], color=[0,1,1], size = size)
+        else:
+            sphere(i[0], i[1], i[2], color=[0,1,0], size = size)
 
     print("Deg:", toDeg(tf.rad))
     print()
