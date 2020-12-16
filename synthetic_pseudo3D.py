@@ -27,16 +27,16 @@ def reshape(w, h):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-class trackFinder(object):
-    """docstring for trackFinder"""
-    def __init__(self, path, path_j, args):
-        super(trackFinder, self).__init__()
-        self.path = path
-        self.img = cv2.imread(path)
+class Pseudo3d_Synth(object):
+    """docstring for Pseudo3d_Synth"""
+    def __init__(self, img_path, path_j, args):
+        super(Pseudo3d_Synth, self).__init__()
+        self.img_path = img_path
+        self.img = cv2.imread(img_path)
 
-        f = open(path_j)
-        self.cfg = json.load(f)
-        f.close()
+        jsonf = open(path_j)
+        self.cfg = json.load(jsonf)
+        jsonf.close()
         self.args = args
         self.gt = True
 
@@ -57,8 +57,8 @@ class trackFinder(object):
         self.track2D = self.getTrack2D()
 
         # Changable factor
-        self.f = self.args.height / (2*tan(pi*self.args.fovy/360))
-        self._f = self.f
+        self.f = self.args.height / (2*tan(pi*self.args.fovy/360)) # prediction of focal
+        self._f = self.f # ground truth of focal
         self.rad = 0
         # Changable affact
         self.K = self.getK()
@@ -118,7 +118,7 @@ class trackFinder(object):
         return P
 
     def getTrack2D(self):
-        tr2d = tracker2D(self.path)
+        tr2d = tracker2D(self.img_path)
         return tr2d.getTrack2D()
 
     def rotate(self, angle):
@@ -307,7 +307,7 @@ if __name__ == '__main__':
                         help='number of samples')
     args = parser.parse_args()
 
-    tf = trackFinder(path="../cameraPose/data/track/track_00000000.png", path_j=args.json, args=args)
+    tf = Pseudo3d_Synth(img_path="../cameraPose/data/track/track_00000000.png", path_j=args.json, args=args)
 
     focal = args.height / (2*tan(pi*args.fovy/360))
     # pose, _ = next(readPose(cfg, args))
