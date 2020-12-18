@@ -38,7 +38,7 @@ class trackDetector(object):
         self.p = (intrinsic[0,2], intrinsic[1,2])
         # src_pts = [(-3.05, 6.7), (3.05, 6.7), (3.05, -6.7), (-3.05, -6.7)]
         self.H = H
-        self.o_wcs = (177.5, 480.0)
+        self.o_wcs = (177.5, 480.0, 1)
         # self.campos = campos
         self.camera_wcs = camCenter
         self.c2w = c2w
@@ -67,39 +67,40 @@ class trackDetector(object):
 
     def setShotPoint2d(self, strat, end):
         # Transform image point to WCS
-        self.start_wcs = (self.H @ strat.reshape(-1,1)).reshape(-1)
-        self.end_wcs   = (self.H @ end.reshape(-1,1)).reshape(-1)
-        self.start_wcs = (self.start_wcs[:2] / self.start_wcs[2]) - self.o_wcs
-        self.end_wcs   = (self.end_wcs[:2] / self.end_wcs[2]) - self.o_wcs
+
+        self.start_wcs = (self.H @ np.array([[strat[0]],[strat[1]],[1]])).reshape(-1)
+        self.end_wcs   = (self.H @ np.array([[end[0]],[end[1]],[1]])).reshape(-1)
+        self.start_wcs = (self.start_wcs / self.start_wcs[2])#  - self.o_wcs
+        self.end_wcs   = (self.end_wcs / self.end_wcs[2])#  - self.o_wcs
 
         # Align X-Y axis
-        self.start_wcs = self.start_wcs * [1,-1]
-        self.end_wcs   = self.end_wcs * [1,-1]
+        # self.start_wcs = self.start_wcs * [1,-1, 1]
+        # self.end_wcs   = self.end_wcs * [1,-1, 1]
 
         # Unified unit (2cm -> m)
-        self.start_wcs /= 50
-        self.end_wcs   /= 50
+        # self.start_wcs /= 50
+        # self.end_wcs   /= 50
+        print('Set Start point (wcs)',self.start_wcs)
+        print('Set End point (wcs)',self.end_wcs)
 
     def setShotPoint3d(self, strat, end):
-        # Transform image point to WCS
         self.start_wcs = strat
         self.end_wcs   = end
 
     def setTrackPlane(self):
         # Calculate the Normal vector of the Track Plane
         direction = self.end_wcs - self.start_wcs
+        print('Shooting direction (wcs)',direction)
         self.N = np.array([direction[1], -direction[0], 0])
         self.N /= np.linalg.norm(self.N)
-        print("N of track plane")
-        pp.pprint(self.N)
+        print("N of track plane", self.N)
 
     def get3Dtrack(self):
-        print(self.start_wcs, self.camera_wcs)
         self.molecular = ((self.start_wcs - self.camera_wcs) * self.N).sum()
         self.decimal = (self.track2D_wcs * self.N).sum(axis=1)
 
         self.t = (self.molecular/self.decimal).reshape(-1,1)
-        print("scale factor from 2D to 3D")
+        print("Scale factor from 2D to 3D")
         print(self.t)
         self.track3D_wcs = self.track2D_wcs * self.t + self.camera_wcs
         print("3D in WCS")

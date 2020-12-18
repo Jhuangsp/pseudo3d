@@ -4,11 +4,11 @@ import numpy as np
 
 class Hfinder(object):
     """docstring for Hfinder"""
-    def __init__(self, img, court2D=[]):
+    def __init__(self, img=None, court2D=[], court3D=[[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]):
         super(Hfinder, self).__init__()
         self.img = img
-        self.court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
         self.court2D = court2D
+        self.court3D = court3D
         self.H = np.zeros((3,3))
         self.calculateH(self.img)
 

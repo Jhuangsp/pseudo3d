@@ -14,15 +14,15 @@ import cv2
 
 quadric = gluNewQuadric()
 
-def startGL(cfg, args):
+def startGL(args):
     glutInit()
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE)
     glutInitWindowSize(args.width, args.height)
     glutCreateWindow("Hello")
-    init(cfg, args)
+    init(args)
 
 
-def init(cfg, args):
+def init(args):
     glEnable(GL_DEPTH_TEST)
     glClearColor(1., 1., 1., 1.)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
