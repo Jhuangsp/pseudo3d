@@ -80,8 +80,8 @@ class trackDetector(object):
         # Unified unit (2cm -> m)
         # self.start_wcs /= 50
         # self.end_wcs   /= 50
-        print('Set Start point (wcs)',self.start_wcs)
-        print('Set End point (wcs)',self.end_wcs)
+        print('Set Start point (wcs)', self.start_wcs)
+        print('Set End point (wcs)', self.end_wcs)
 
     def setShotPoint3d(self, strat, end):
         self.start_wcs = strat

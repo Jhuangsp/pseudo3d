@@ -11,9 +11,8 @@ from math import sqrt, pi, sin, cos, tan
 
 from Hfinder import Hfinder
 from trackDetector import trackDetector
-from generator import startGL, readPose, toRad, toDeg, drawCourt, drawCircle, patternCircle, drawTrack
-# from curveGenerator import curveGenerator
 from tracker2D import tracker2D
+from generator import startGL, readPose, toRad, toDeg, drawCourt, drawCircle, patternCircle, drawTrack
 
 np.set_printoptions(precision=4)
 np.set_printoptions(suppress=True)
@@ -29,10 +28,9 @@ def reshape(w, h):
 
 class Pseudo3d_Synth(object):
     """docstring for Pseudo3d_Synth"""
-    def __init__(self, img_path, path_j, args):
+    def __init__(self, img, path_j, args, H, K):
         super(Pseudo3d_Synth, self).__init__()
-        self.img_path = img_path
-        self.img = cv2.imread(img_path)
+        self.img = img
 
         jsonf = open(path_j)
         self.cfg = json.load(jsonf)
@@ -48,58 +46,56 @@ class Pseudo3d_Synth(object):
         self.up = np.zeros(3)
         self.quadric = gluNewQuadric()
         # self.court2D = [[776, 325], [1141, 325], [1318, 929], [601, 929]]
-        self.court2D = []
-        self.court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
+        # self.court2D = []
+        # self.court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
 
         # Curve param
         self.start_wcs = np.array([-1.5, 2, 0])
         self.end_wcs = np.array([2, -5.5, 0])
         self.track2D = self.getTrack2D()
 
-        # Changable factor
-        self.f = self.args.height / (2*tan(pi*self.args.fovy/360)) # prediction of focal
-        self._f = self.f # ground truth of focal
+        # Visualizer changable factor
+        self._f = 0 # guess focal offset
         self.rad = 0
-        # Changable affact
-        self.K = self.getK()
-        self.H = self.getH()
+
+        # 3D information
+        self.H = H
+        self.K = K
         self.Rt = self.getRt()
         self.P = self.getP()
 
         # Coord. system changer mtx
         self.c2w = np.zeros((3,3))
-        # self.w2c
 
-        pose, _ = next(readPose(self.cfg, self.args))
-        self.setupCam(pose, self.args.fovy)
+        # OpenGL Init camera pose parameters for gluLookAt() function
+        init_pose, _ = next(readPose(self.cfg, self.args, 1))
+        self.setupCam(init_pose, self.args.fovy)
 
     def setupCam(self, pose, fovy):
         self.eye = pose[0]
         self.obj = pose[1]
         self.up = pose[2]
         self.fovy = fovy
-        print(self.eye, self.obj, self.up, sep="\n")
+        # print(self.eye, self.obj, self.up, sep="\n")
 
-    def getK(self):
-        K = np.zeros((3,3))
-        K[0,0] = self.f
-        K[1,1] = self.f
-        K[0,2] = self.imgshape[1]/2
-        K[1,2] = self.imgshape[0]/2
-        K[2,2] = 1
-        print(K)
-        return K
-
-    def getH(self):
-        hf = Hfinder(self.img, court2D=self.court2D)
-        return hf.getH()
+    def getGeussK(self):
+        # K = np.zeros((3,3))
+        # K[0,0] = self.K[0,0] + self._f
+        # K[1,1] = self.K[1,1] + self._f
+        # K[0,2] = self.K[0,2]
+        # K[1,2] = self.K[1,2]
+        # K[2,2] = 1
+        # print(K)
+        return self.K + np.array([[self._f, 0, 0],
+                                  [0, self._f, 0],
+                                  [0,       0, 0]])
 
     def getRt(self):
         R = np.zeros((3,3))
         t = np.zeros(3)
         Rt = np.zeros((3,4))
 
-        K_inv = np.linalg.inv(self.K)
+        K_inv = np.linalg.inv(self.getGeussK())
         H_inv = np.linalg.inv(self.H) # H_inv: wcs -> ccs
         multiple = K_inv@H_inv[:,0]
         lamda = 1/np.linalg.norm(multiple, ord=None, axis=None, keepdims=False)
@@ -114,11 +110,11 @@ class Pseudo3d_Synth(object):
         return Rt
 
     def getP(self):
-        P = self.K @ self.Rt
+        P = self.getGeussK() @ self.Rt
         return P
 
     def getTrack2D(self):
-        tr2d = tracker2D(self.img_path)
+        tr2d = tracker2D(self.img)
         return tr2d.getTrack2D()
 
     def rotate(self, angle):
@@ -132,7 +128,6 @@ class Pseudo3d_Synth(object):
         return _eye.reshape(-1), self.obj, _up.reshape(-1)
 
     def updateF(self):
-        self.K = self.getK()
         self.Rt = self.getRt()
 
         # Get world pose described in CCS
@@ -186,13 +181,13 @@ class Pseudo3d_Synth(object):
         # print("\n")
 
         if self.gt:
-            td = trackDetector(self.K, self.H, 
+            td = trackDetector(self.getGeussK(), self.H, 
                 [0.0, -15.588457268119896, 8.999999999999998], 
                 np.array([[1,0,0], 
                     [0,-0.5,0.8660254037844387], 
                     [0,-0.8660254037844387,-0.5]]))
         else:
-            td = trackDetector(self.K, self.H, cam_position_wcs.T, self.c2w)
+            td = trackDetector(self.getGeussK(), self.H, cam_position_wcs.T, self.c2w)
         td.set2Dtrack(self.track2D)
         td.setShotPoint3d(self.start_wcs, self.end_wcs)
         td.setTrackPlane()
@@ -214,10 +209,10 @@ def keyboardFunc(c, x, y):
         tf.rad %= 2*pi
         glutPostRedisplay()
     elif ord(c.decode('utf-8')) == ord('w') or ord(c.decode('utf-8')) == ord('w'):
-        tf.f += 100
+        tf._f += 100
         glutPostRedisplay()
     elif ord(c.decode('utf-8')) == ord('s') or ord(c.decode('utf-8')) == ord('S'):
-        tf.f -= 100
+        tf._f -= 100
         glutPostRedisplay()
     elif ord(c.decode('utf-8')) == ord(' '):
         tf.gt = not tf.gt
@@ -254,7 +249,7 @@ def drawFunc():
         # draw pattern for chessboard method
         patternChess(cube_size=tf.cfg['size'], chess_size=tf.cfg['chess'])
 
-    # Draw track
+    # Draw Ground Truth track & ancher point
     drawCircle(tf.start_wcs[:2], 0.05, [0, 255, 255])
     drawCircle(tf.end_wcs[:2], 0.05, [255, 255, 0])
     drawTrack(tf.start_wcs[:2], tf.end_wcs[:2])
@@ -282,16 +277,16 @@ def drawFunc():
        [-1.33133548,  1.63857603,  2.43168363],
        [-1.50786414,  2.01685172,  2.00008132]])
     '''
+    # Draw Pseudo3D track
     pred = tf.updateF()
-    # print(pred)
     for i in pred:
-        size = 0.05 if tf._f!=tf.f else 0.03
+        size = 0.05 if tf._f!=0 else 0.03
         if tf.gt:
             sphere(i[0], i[1], i[2], color=[0,1,1], size = size)
         else:
             sphere(i[0], i[1], i[2], color=[0,1,0], size = size)
 
-    print("Deg:", toDeg(tf.rad))
+    print("Focal length offset:", tf._f, "Deg:", toDeg(tf.rad))
     print()
 
     glutSwapBuffers()
@@ -303,17 +298,37 @@ if __name__ == '__main__':
     parser.add_argument("--fovy", type=float, default=40, help='fovy of image')
     parser.add_argument("--height", type=int, default=1060, help='height of image')
     parser.add_argument("--width", type=int, default=1920, help='width of image')
-    parser.add_argument("--num", type=int, default=1,
-                        help='number of samples')
+    # parser.add_argument("--num", type=int, default=1,
+    #                     help='number of samples')
     args = parser.parse_args()
 
-    tf = Pseudo3d_Synth(img_path="../cameraPose/data/track/track_00000000.png", path_j=args.json, args=args)
+    img = cv2.imread("../cameraPose/data/track/track_00000000.png")
 
-    focal = args.height / (2*tan(pi*args.fovy/360))
-    # pose, _ = next(readPose(cfg, args))
-    # setupCam(pose, args.fovy)
+    # Prepare Homography matrix (image(pixel) -> court(meter))
+    court2D = []
+    court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
+    hf = Hfinder(img, court2D=court2D, court3D=court3D)
+    Hmtx = hf.getH()
 
-    startGL(tf.cfg, tf.args)
+    # Prepare Intrinsic matix of video
+    video_h = img.shape[0]
+    video_w = img.shape[1]
+    video_focal_length = video_h / (2*tan(pi*args.fovy/360))
+    Kmtx = np.array(
+        [[video_focal_length, 0, video_w/2],
+         [0, video_focal_length, video_h/2],
+         [0,                  0,         1]]
+    )
+
+    tf = Pseudo3d_Synth(img=img, 
+        path_j=args.json, 
+        args=args, 
+        H=Hmtx, 
+        K=Kmtx
+    )
+
+    # OpenGL visualizer Init
+    startGL(args)
     glutReshapeFunc(reshape)
     glutKeyboardFunc(keyboardFunc)
     glutDisplayFunc(drawFunc)

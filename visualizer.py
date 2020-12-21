@@ -156,7 +156,7 @@ if __name__ == '__main__':
     focal = args.height / (2*tan(pi*args.fovy/360))
     print("focal", focal)
     print("Generate {} pattern".format(cfg['pattern']))
-    pose,_ = next(readPose(cfg, args))
+    pose,_ = next(readPose(cfg, args, 1))
     setupCam(pose, args.fovy)
 
     startGL(cfg, args)

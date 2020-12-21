@@ -5,11 +5,9 @@ from sklearn.cluster import MeanShift
 
 class tracker2D(object):
     """docstring for tracker2D"""
-    def __init__(self, path):
+    def __init__(self, img):
         super(tracker2D, self).__init__()
-        self.path = path
-        self.img = cv2.imread(path)
-
+        self.img = img
 
         track2D = np.where(np.all(self.img==[255,0,255], axis=-1))
         track2D = np.moveaxis(np.array((track2D[1], track2D[0])), 0, -1)

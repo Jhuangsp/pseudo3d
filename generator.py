@@ -81,9 +81,9 @@ def rotateRYP(points, roll, yaw, pitch):
     return R, new_points
 
 
-def readPose(cfg, args):
-    lats, lons = randomRotate(cfg['rotation']['pitch'], cfg['rotation']['yaw'], args.num)
-    t_xs, t_ys = randomTrans(cfg['shift'], args.num)
+def readPose(cfg, args, num):
+    lats, lons = randomRotate(cfg['rotation']['pitch'], cfg['rotation']['yaw'], num)
+    t_xs, t_ys = randomTrans(cfg['shift'], num)
     for la, lo, tx, ty in zip(lats, lons, t_xs, t_ys):
         look_default = np.array([[0,0,-1]])
         up_default = np.array([[0,1,0]])
@@ -319,7 +319,7 @@ if __name__ == '__main__':
     setupPath(args.out)
     setupPath(os.path.join(args.out, 'labels'))
 
-    for i, (pose_gl, label) in enumerate(readPose(cfg, args)):
+    for i, (pose_gl, label) in enumerate(readPose(cfg, args, args.num)):
         img, track = draw(cfg, args, pose_gl[0], pose_gl[1], pose_gl[2])
         # cv2.imwrite(args.out+'/calib_{:08d}.png'.format(i), img)
         # cv2.imwrite(args.out+'/track_{:08d}.png'.format(i), track)
