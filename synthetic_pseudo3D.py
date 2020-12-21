@@ -294,7 +294,7 @@ def drawFunc():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--json", type=str, help='pose config json file')
+    parser.add_argument("--json", type=str, default="synthetic_track/track.json", help='pose config json file')
     parser.add_argument("--fovy", type=float, default=40, help='fovy of image')
     parser.add_argument("--height", type=int, default=1060, help='height of image')
     parser.add_argument("--width", type=int, default=1920, help='width of image')
@@ -302,7 +302,7 @@ if __name__ == '__main__':
     #                     help='number of samples')
     args = parser.parse_args()
 
-    img = cv2.imread("../cameraPose/data/track/track_00000000.png")
+    img = cv2.imread("synthetic_track/track_00000000.png")
 
     # Prepare Homography matrix (image(pixel) -> court(meter))
     court2D = []
