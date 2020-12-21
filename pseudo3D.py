@@ -228,7 +228,7 @@ def drawFunc():
     # Draw badminton court
     drawCourt()
 
-    # Draw track
+    # Draw Pseudo3D track
     pred = tf.updateF()
     for i in pred:
         size = 0.05 if tf._f!=0 else 0.05
