@@ -28,9 +28,8 @@ def reshape(w, h):
 
 class Pseudo3d_Synth(object):
     """docstring for Pseudo3d_Synth"""
-    def __init__(self, img, track2D, path_j, args, H, K):
+    def __init__(self, track2D, path_j, args, H, K):
         super(Pseudo3d_Synth, self).__init__()
-        self.img = img
 
         jsonf = open(path_j)
         self.cfg = json.load(jsonf)
@@ -39,15 +38,11 @@ class Pseudo3d_Synth(object):
         self.gt = True
 
         # Opengl param
-        self.imgshape = self.img.shape[:2]
         self.fovy = 0
         self.eye = np.zeros(3)
         self.obj = np.zeros(3)
         self.up = np.zeros(3)
         self.quadric = gluNewQuadric()
-        # self.court2D = [[776, 325], [1141, 325], [1318, 929], [601, 929]]
-        # self.court2D = []
-        # self.court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
 
         # Curve param
         self.start_wcs = np.array([-1.5, 2, 0])
@@ -294,7 +289,7 @@ if __name__ == '__main__':
          [0,                  0,         1]]
     )
 
-    tf = Pseudo3d_Synth(img=img, 
+    tf = Pseudo3d_Synth(
         track2D=tr2d.getTrack2D(),
         path_j=args.json, 
         args=args, 
