@@ -1,9 +1,7 @@
 import numpy as np
 import cv2
 import os, csv, glob, yaml
-from sklearn.cluster import MeanShift
 import argparse
-import CameraPose as cp
 import pprint
 
 from tracker2D import tracker2D
@@ -109,6 +107,7 @@ class trackDetector(object):
 
 
 if __name__ == '__main__':
+    import CameraPose as cp
     parser = argparse.ArgumentParser(description='Camera Pose Estimation')
     parser.add_argument('--infolder', '-i', type=str, required=True,
                         help='path to input image files')
