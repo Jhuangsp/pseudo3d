@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import cv2
-import glob
 import argparse, csv, json
 
 from OpenGL.GLU import *
@@ -250,43 +249,46 @@ def drawFunc():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tracks", type=str, help='track file output from TrackNetV2')
+    parser.add_argument("--track", type=str, help='csv file output from TrackNetV2')
     parser.add_argument("--fovy", type=float, default=40, help='fovy of visualize window')
     parser.add_argument("--height", type=int, default=1060, help='height of visualize window')
     parser.add_argument("--width", type=int, default=1920, help='width of visualize window')
     args = parser.parse_args()
 
     # Prepare TrcakNetV2 result
-    rallys = glob.glob(os.path.join(args.tracks, 'set*.csv'))
-    rallys.sort()
-
     shots = []
-    shots_land = []
+    shots_start = []
+    shots_end = []
     shots_frame = []
-    for rally in rallys:
-        with open(rally, newline='') as ral_f:
-            ral = csv.DictReader(ral_f)
-            served = False
-            for f in ral:
-                if not served:
-                    if f['Hit'] == 'True':
-                        tmp = []
-                        tmp.append([float(f['X']), float(f['Y'])])
-                        shots_land.append([float(f['LandX']), float(f['LandY'])])
-                        shots_frame.append(float(f['Frame']))
-                        served = True
-                    else: continue
+    with open(args.track, newline='') as ral_f:
+        ral = csv.DictReader(ral_f)
+        served = False
+        for f in ral:
+            if not served:
+                if f['Hit'] == 'True':
+                    tmp = []
+                    tmp.append([float(f['X']), float(f['Y'])])
+                    try:
+                        shots_start.append([float(f['EndX']), float(f['EndY'])])
+                        shots_end.append([float(f['EndX']), float(f['EndY'])])
+                    except:
+                        shots_start.append([-1,-1])
+                        shots_end.append([-1,-1])
+                    shots_frame.append(float(f['Frame']))
+                    served = True
+                else: continue
+            else:
+                if f['Hit'] == 'True':
+                    shots.append(tmp)
+                    tmp = []
+                    tmp.append([float(f['X']), float(f['Y'])])
+                    shots_start.append([float(f['StartX']), float(f['StartY'])])
+                    shots_end.append([float(f['EndX']), float(f['EndY'])])
+                    shots_frame.append(float(f['Frame']))
                 else:
-                    if f['Hit'] == 'True':
-                        shots.append(tmp)
-                        tmp = []
+                    if f['Visibility'] == '1':
                         tmp.append([float(f['X']), float(f['Y'])])
-                        shots_land.append([float(f['LandX']), float(f['LandY'])])
                         shots_frame.append(float(f['Frame']))
-                    else:
-                        if f['Visibility'] == '1':
-                            tmp.append([float(f['X']), float(f['Y'])])
-                            shots_frame.append(float(f['Frame']))
 
     # Prepare Homography matrix (image(pixel) -> court(meter))
     court2D = [[448, 256.6], [818.2, 256.2], [981.2, 646.4], [278.8, 649]]
@@ -305,9 +307,9 @@ if __name__ == '__main__':
     )
 
     # Pseudo3D trajectory transform (2D->3D)
-    now = 1
-    tf = Pseudo3d(start_wcs=np.array(shots_land[now-1]), 
-        end_wcs=np.array(shots_land[now]), 
+    now = 4
+    tf = Pseudo3d(start_wcs=np.array(shots_start[now]), 
+        end_wcs=np.array(shots_end[now]), 
         track2D=np.array(shots[now]), 
         args=args, 
         H=Hmtx, 
