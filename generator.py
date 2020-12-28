@@ -315,7 +315,7 @@ if __name__ == '__main__':
     print("focal", focal)
     print("Generate {} pattern".format(cfg['pattern']))
 
-    startGL(cfg, args)
+    startGL(args)
     setupPath(args.out)
     setupPath(os.path.join(args.out, 'labels'))
 

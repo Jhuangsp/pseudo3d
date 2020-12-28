@@ -1,0 +1,12 @@
+{
+  "pattern": "two_circle",
+  "rotation": {
+    "roll": [0, 0],
+    "yaw": [60, 60],
+    "pitch": [30, 30]
+  },
+  "shift": [0, 0],
+  "size": 0.06,
+  "distance": 18,
+  "space": 1.0
+}
