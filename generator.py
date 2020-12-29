@@ -246,11 +246,11 @@ def patternChess(cube_size, chess_size):
             glVertex3f((i*2-1)*cube_size, (j*2+0)*cube_size,0)
             glEnd()
 
-def sphere(x,y,z):
+def sphere(x,y,z,size=0.02):
     global quadric
     glColor3f(1, 0, 1)
     glTranslatef(x,y,z)
-    gluSphere(quadric,0.05,32,32)
+    gluSphere(quadric,size,32,32)
     glTranslatef(-x,-y,-z)
 
 def drawTrack(start, end):
@@ -321,6 +321,6 @@ if __name__ == '__main__':
 
     for i, (pose_gl, label) in enumerate(readPose(cfg, args, args.num)):
         img, track = draw(cfg, args, pose_gl[0], pose_gl[1], pose_gl[2])
-        # cv2.imwrite(args.out+'/calib_{:08d}.png'.format(i), img)
-        # cv2.imwrite(args.out+'/track_{:08d}.png'.format(i), track)
+        cv2.imwrite(os.path.join(args.out,'calib_{:08d}.png'.format(i)), img)
+        cv2.imwrite(os.path.join(args.out,'track_{:08d}.png'.format(i)), track)
         writeLabel(label, os.path.join(args.out, 'labels', 'label_{:08d}.yml'.format(i)))
