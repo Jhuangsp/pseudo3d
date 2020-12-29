@@ -307,7 +307,7 @@ if __name__ == '__main__':
     )
 
     # Pseudo3D trajectory transform (2D->3D)
-    now = 4
+    now = 1
     tf = Pseudo3d(start_wcs=np.array(shots_start[now]), 
         end_wcs=np.array(shots_end[now]), 
         track2D=np.array(shots[now]), 
