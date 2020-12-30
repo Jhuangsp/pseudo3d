@@ -10,7 +10,7 @@ try:
 	if (not inputPath) or (not outputPath) or (not segFile):
 		raise ''
 except:
-	print('usage: python3 Rearrange_Label.py <inputPath> <outputPath> <segFile>')
+	print('usage: python Rearrange_Label.py <inputPath> <outputPath> <segFile>')
 	exit(1)
 	
 # Open rally segment file

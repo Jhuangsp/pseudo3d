@@ -71,6 +71,7 @@ if __name__ == '__main__':
     parser.add_argument("--rallys", type=str, help='Folder contain the rally csv files')
     parser.add_argument("--set", type=str, help='Set csv file')
     parser.add_argument("--seg", type=str, help='Rally Segment csv file')
+    parser.add_argument("--out", type=str, help='Output Folder')
     args = parser.parse_args()
 
     rally_files = glob.glob(os.path.join(args.rallys, '{}_*.csv'.format(args.set[-5])))
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     pp.pprint(info[0])
 
     for e, f in enumerate(rally_files):
-        with open(os.path.join(args.rallys, 'set_'+f.split(os.sep)[-1]), 'w', newline='') as csvfile:
+        with open(os.path.join(args.out, 'set_'+f.split(os.sep)[-1]), 'w', newline='') as csvfile:
             fieldnames = ['Frame', 'Visibility', 'X', 'Y', 'Hit', 'StartX', 'StartY', 'EndX', 'EndY']
 
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
