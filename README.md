@@ -8,6 +8,21 @@
 5. [Pseudo3D](#Pseudo3D)
 
 ## Installation
+```
+$ pip install numpy
+$ pip install cv2
+$ pip install pandas
+$ pip install Pillow
+$ pip install PyYAML
+$ pip install scikit-learn
+
+# [For windows] go to https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopengl
+# and download PyOpenGL-3.1.5-cp38-cp38-win_amd64.whl
+$ pip install PyOpenGL-3.1.5-cp38-cp38-win_amd64.whl
+
+# [For ubuntu]
+$ pip install PyOpenGL
+```
 
 ## Quick Start Demo
 For the `synthetic_pseudo3D.py` demo, first point out the 4 corner of the badminton court in order of `left-top`, `right-top`, `right-bottom`, `left-bottom`.
