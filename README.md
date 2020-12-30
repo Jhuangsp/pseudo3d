@@ -1,5 +1,14 @@
 # Pseudo3D reconstruction for badminton trajectory
 
+## Contents
+1. [Installation](#Installation)
+2. [Quick Start Demo](#Quick-Start-Demo)
+3. [How to generate synthetic data](#How-to-generate-synthetic-data)
+4. [How to get real scene data](#How-to-get-real-scene-data)
+5. [Pseudo3D](#Pseudo3D)
+
+## Installation
+
 ## Quick Start Demo
 For the `synthetic_pseudo3D.py` demo, first point out the 4 corner of the badminton court in order of `left-top`, `right-top`, `right-bottom`, `left-bottom`.
 If you want to adjust your corner position, please complete the 4 corner first, then adjust the corner by clicking on the new position. 
