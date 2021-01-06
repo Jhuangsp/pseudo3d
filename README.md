@@ -9,7 +9,7 @@
 ## Installation
 ```
 $ pip install numpy
-$ pip install cv2
+$ pip install opencv-python
 $ pip install pandas
 $ pip install Pillow
 $ pip install PyYAML
