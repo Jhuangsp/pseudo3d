@@ -38,6 +38,9 @@ class Hfinder(object):
                     cv2.destroyAllWindows()
                     break
 
-        self.court2D = np.array(self.court2D) - np.array([[50,50]]) # unpadding
+            self.court2D = np.array(self.court2D) - np.array([[50,50]]) # unpadding
+        else:
+            self.court2D = np.array(self.court2D)
+            
         self.court3D = np.array(self.court3D)
         self.H, status = cv2.findHomography(self.court2D, self.court3D)

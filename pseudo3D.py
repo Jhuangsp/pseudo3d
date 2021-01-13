@@ -292,7 +292,8 @@ if __name__ == '__main__':
 
     # Prepare Homography matrix (image(pixel) -> court(meter))
     # 4 Court corners of CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal recorded in homography_matrix.csv
-    court2D = [[448, 256.6], [818.2, 256.2], [981.2, 646.4], [278.8, 649]] 
+    # court2D = [[448, 256.6], [818.2, 256.2], [981.2, 646.4], [278.8, 649]] 
+    court2D = [[415.4,358.2], [863.4,358.2], [1018.4,672], [262.8,672]]
     court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
     hf = Hfinder(None, court2D=court2D, court3D=court3D)
     Hmtx = hf.getH()
