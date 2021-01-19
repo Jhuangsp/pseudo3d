@@ -85,7 +85,7 @@ Use the `Rearrange_Label.py` to transform old format to new format.
 
 $ cd real_track
 $ mkdir new_format
-$ python Rearrange_Label.py CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/format_old/ new_format/ CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/RallySeg.csv
+$ python Rearrange_Label.py CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/old_format/ new_format/ CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/RallySeg.csv
 ```
 
 ### 2. Associate TrackNetV2 prediction to shot-by-shot annotation
@@ -125,7 +125,7 @@ Use the `rallyMatcher.py` to associate annotation.
 
 $ cd real_track
 $ mkdir associated
-$ python rallyMatcher.py --rally CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/format_new --set CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/set1.csv --seg CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/RallySeg.csv --out associated
+$ python rallyMatcher.py --rallys CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/new_format --sets CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/label --seg CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal/RallySeg.csv --out associated
 ```
 
 ## How to generate synthetic data

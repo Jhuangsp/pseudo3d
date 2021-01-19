@@ -27,7 +27,7 @@ def reshape(w, h):
 
 class Pseudo3d(object):
     """docstring for Pseudo3d"""
-    def __init__(self, start_wcs, end_wcs, track2D, H, K, args):
+    def __init__(self, start_wcs, end_wcs, track2D, H, K, args=None):
         super(Pseudo3d, self).__init__()
         self.args = args
         self.gt = False
@@ -293,7 +293,14 @@ if __name__ == '__main__':
     # Prepare Homography matrix (image(pixel) -> court(meter))
     # 4 Court corners of CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal recorded in homography_matrix.csv
     # court2D = [[448, 256.6], [818.2, 256.2], [981.2, 646.4], [278.8, 649]] 
-    court2D = [[415.4,358.2], [863.4,358.2], [1018.4,672], [262.8,672]]
+    # 4 Court corners of CHEN_Long_CHOU_Tien_Chen_World_Tour_Finals_Group_Stage
+    # court2D = [[415.4,358.2], [863.4,358.2], [1018.4,672], [262.8,672]]
+    # 4 Court corners of CHEN_Yufei_TAI_Tzu_Ying_Malaysia_Masters_2020_Finals
+    # court2D = [[416.2,422.4], [879.6,422.2], [945.4,723.8], [225.8,718]]
+    # 4 Court corners of CHEN_Yufei_TAI_Tzu_Ying_World_Tour_Finals_Finals
+    # court2D = [[340.8,354.4], [823.2,353.2], [837.6,677.2], [120,675.6]]
+    # 4 Court corners of CHOU_Tien_Chen_Anthony_Sinisuka_GINTING_World_Tour_Finals_Group_Stage
+    court2D = [[338.4,329.4], [889.8,332.2], [952.4,705.6], [133.8,695.2]]
     court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
     hf = Hfinder(None, court2D=court2D, court3D=court3D)
     Hmtx = hf.getH()
@@ -301,7 +308,7 @@ if __name__ == '__main__':
     # Prepare Intrinsic matix of video
     video_h = 720
     video_w = 1280
-    video_focal_length = 1500
+    video_focal_length = 2000
     Kmtx = np.array(
         [[video_focal_length, 0, video_w/2],
          [0, video_focal_length, video_h/2],
@@ -309,7 +316,7 @@ if __name__ == '__main__':
     )
 
     # Pseudo3D trajectory transform (2D->3D)
-    now = 1
+    now = 5
     tf = Pseudo3d(start_wcs=np.array(shots_start[now]), 
         end_wcs=np.array(shots_end[now]), 
         track2D=np.array(shots[now]), 
