@@ -12,7 +12,7 @@ from math import sqrt, pi, sin, cos, tan
 from Hfinder import Hfinder
 from trackDetector import trackDetector
 from tracker2D import tracker2D
-from generator import startGL, readPose, toRad, toDeg, drawCourt, drawCircle, patternCircle, drawTrack
+from generator import startGL, readPose, toRad, toDeg, drawCourt, drawNet, drawCircle, patternCircle, drawTrack
 
 np.set_printoptions(precision=4)
 np.set_printoptions(suppress=True)
@@ -231,6 +231,7 @@ def drawFunc():
 
     # Draw badminton court
     drawCourt()
+    drawNet()
 
     # Draw pattern
     if tf.cfg['pattern'] == "two_circle":
