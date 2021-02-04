@@ -42,6 +42,26 @@ def setupPath(path):
         os.makedirs(path)
     return path
 
+def drawLogo(data):
+    bitmap_tex = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, bitmap_tex)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,data.shape[1],data.shape[0],0,GL_BGRA,GL_UNSIGNED_BYTE,data)
+
+    glEnable(GL_TEXTURE_2D)
+    glBegin(GL_QUADS)
+    glTexCoord2f(0, 0)
+    glVertex3f(-2.4, 0.37, 0.03)
+    glTexCoord2f(0, 1)
+    glVertex3f(-2.4, -0.37, 0.03)
+    glTexCoord2f(1, 1)
+    glVertex3f(2.4, -0.37, 0.03)
+    glTexCoord2f(1, 0)
+    glVertex3f(2.4, 0.37, 0.03)
+    glEnd()
+    glDisable(GL_TEXTURE_2D)
+
 def drawNet():
     glColor3f(0.6, 0.6, 0)
     glBegin(GL_QUADS)

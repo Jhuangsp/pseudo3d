@@ -12,10 +12,12 @@ from math import sqrt, pi, sin, cos, tan
 from Hfinder import Hfinder
 from trackDetector import trackDetector
 from tracker2D import tracker2D
-from generator import startGL, readPose, toRad, toDeg, drawCourt, drawNet, drawCircle, patternCircle, drawTrack
+from generator import startGL, readPose, toRad, toDeg, drawCourt, drawNet, drawLogo, drawCircle, patternCircle, drawTrack
 
 np.set_printoptions(precision=4)
 np.set_printoptions(suppress=True)
+logo = cv2.imread('msic/CoachAI.png')
+logo = np.concatenate((logo, np.zeros((logo.shape[0],logo.shape[1],1), 'uint8')+255), axis=2)
 
 def reshape(w, h):
     global tf
@@ -230,7 +232,9 @@ def drawFunc():
               _up[0], _up[1], _up[2])
 
     # Draw badminton court
+    # order is very important
     drawCourt()
+    drawLogo(logo)
     drawNet()
 
     # Draw pattern
