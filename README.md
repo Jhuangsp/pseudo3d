@@ -8,6 +8,10 @@
 
 ## Installation
 ```
+$ git clone https://github.com/Jhuangsp/pseudo3d.git
+$ cd pseudo3d
+$ git clone https://github.com/Jhuangsp/h2pose.git
+
 $ pip install numpy
 $ pip install opencv-python
 $ pip install pandas

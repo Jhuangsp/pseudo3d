@@ -8,7 +8,8 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from math import sqrt, pi, sin, cos, tan
 
-from Hfinder import Hfinder
+from h2pose.poseFinder import Hfinder
+from h2pose.H2Pose import H2Pose
 from trackDetector import trackDetector
 from tracker2D import tracker2D
 from generator import startGL, readPose, toRad, toDeg, drawCourt, drawNet, drawCircle, patternCircle, drawTrack
@@ -51,11 +52,11 @@ class Pseudo3d(object):
         # 3D information
         self.H = H
         self.K = K
-        self.Rt = self.getRt()
+        self.Rt, self.c2w, self.Cam_wcs, self.Ori_ccs = self.getPose()
         self.P = self.getP()
 
         # Coord. system changer mtx
-        self.c2w = np.zeros((3,3))
+        # self.c2w = np.zeros((3,3))
 
         # OpenGL Init camera pose parameters for gluLookAt() function
         # init_pose, _ = next(readPose(self.cfg, self.args))
@@ -74,35 +75,13 @@ class Pseudo3d(object):
         # print(self.eye, self.obj, self.up, sep="\n")
 
     def getGeussK(self):
-        # K = np.zeros((3,3))
-        # K[0,0] = self.K[0,0] + self._f
-        # K[1,1] = self.K[1,1] + self._f
-        # K[0,2] = self.K[0,2]
-        # K[1,2] = self.K[1,2]
-        # K[2,2] = 1
-        # print(K)
         return self.K + np.array([[self._f, 0, 0],
                                   [0, self._f, 0],
                                   [0,       0, 0]])
 
-    def getRt(self):
-        R = np.zeros((3,3))
-        t = np.zeros(3)
-        Rt = np.zeros((3,4))
-
-        K_inv = np.linalg.inv(self.getGeussK())
-        H_inv = np.linalg.inv(self.H) # H_inv: wcs -> ccs
-        multiple = K_inv@H_inv[:,0]
-        lamda = 1/np.linalg.norm(multiple, ord=None, axis=None, keepdims=False)
-        
-        R[:,0] = lamda*(K_inv@H_inv[:,0])
-        R[:,1] = lamda*(K_inv@H_inv[:,1])
-        R[:,2] = np.cross(R[:,0], R[:,1])
-        t = np.array(lamda*(K_inv@H_inv[:,2]))
-
-        Rt[:,:3] = R
-        Rt[:,3] = t
-        return Rt
+    def getPose(self):
+        h2p = H2Pose(self.getGeussK(), self.H)
+        return h2p.getRt(), h2p.getC2W(), h2p.getCamera(), h2p.getCenter()
 
     def getP(self):
         P = self.getGeussK() @ self.Rt
@@ -119,55 +98,7 @@ class Pseudo3d(object):
         return _eye.reshape(-1), self.obj, _up.reshape(-1)
 
     def updateF(self):
-        self.Rt = self.getRt()
-
-        # Get world pose described in CCS
-        print("World pose described in CCS")
-        cir_position_ccs = (self.Rt @ [[0],[0],[0],[1]])
-        cir_pose_i_ccs = (self.Rt @ [[1],[0],[0],[1]]) - cir_position_ccs
-        cir_pose_j_ccs = (self.Rt @ [[0],[1],[0],[1]]) - cir_position_ccs
-        cir_pose_k_ccs = (self.Rt @ [[0],[0],[1],[1]]) - cir_position_ccs
-        # print("center")
-        # print(cir_position_ccs.T)
-        # print("pose")
-        # print(cir_pose_i_ccs.T)
-        # print(cir_pose_j_ccs.T)
-        # print(cir_pose_k_ccs.T)
-        # print()
-
-        # Get camera pose described in WCS
-        print("Camera pose described in WCS")
-        self.c2w = np.array(
-            [cir_pose_i_ccs.reshape(-1),
-             cir_pose_j_ccs.reshape(-1),
-             cir_pose_k_ccs.reshape(-1)]
-        )
-        cam_position_wcs = (self.c2w @ -cir_position_ccs)
-        cam_pose_i_wcs = (self.c2w @ [[1],[0],[0]])
-        cam_pose_j_wcs = (self.c2w @ [[0],[1],[0]])
-        cam_pose_k_wcs = (self.c2w @ [[0],[0],[1]])
-        # print("center")
-        # print(cam_position_wcs.T)
-        # print("pose")
-        # print(cam_pose_i_wcs.T)
-        # print(cam_pose_j_wcs.T)
-        # print(cam_pose_k_wcs.T)
-        # print()
-
-        # # Get world pose described in Image coord. system
-        # print("World pose described in Image coord. system")
-        # x_2d = (P @ [[1],[0],[0],[1]])
-        # y_2d = (P @ [[0],[1],[0],[1]])
-        # z_2d = (P @ [[0],[0],[1],[1]])
-
-        # x_2d = x_2d / x_2d[2]
-        # y_2d = y_2d / y_2d[2]
-        # z_2d = z_2d / z_2d[2]
-
-        # print(x_2d.T)
-        # print(y_2d.T)
-        # print(z_2d.T)
-        # print("\n")
+        self.Rt, self.c2w, self.Cam_wcs, self.Ori_ccs = self.getPose()
 
         if self.gt:
             self.td = trackDetector(self.getGeussK(), self.H, 
@@ -176,7 +107,7 @@ class Pseudo3d(object):
                     [0,-0.5,0.8660254037844387], 
                     [0,-0.8660254037844387,-0.5]]))
         else:
-            self.td = trackDetector(self.getGeussK(), self.H, cam_position_wcs.T, self.c2w)
+            self.td = trackDetector(self.getGeussK(), self.H, self.Cam_wcs.reshape(-1), self.c2w)
         self.td.set2Dtrack(self.track2D)
         self.td.setShotPoint2d(self.start_wcs, self.end_wcs)
         self.td.setTrackPlane()
@@ -293,7 +224,7 @@ if __name__ == '__main__':
 
     # Prepare Homography matrix (image(pixel) -> court(meter))
     # 4 Court corners of CHEN_Long_CHOU_Tien_Chen_Denmark_Open_2019_QuarterFinal recorded in homography_matrix.csv
-    # court2D = [[448, 256.6], [818.2, 256.2], [981.2, 646.4], [278.8, 649]] 
+    court2D = [[448, 256.6], [818.2, 256.2], [981.2, 646.4], [278.8, 649]] 
     # 4 Court corners of CHEN_Long_CHOU_Tien_Chen_World_Tour_Finals_Group_Stage
     # court2D = [[415.4,358.2], [863.4,358.2], [1018.4,672], [262.8,672]]
     # 4 Court corners of CHEN_Yufei_TAI_Tzu_Ying_Malaysia_Masters_2020_Finals
@@ -301,7 +232,7 @@ if __name__ == '__main__':
     # 4 Court corners of CHEN_Yufei_TAI_Tzu_Ying_World_Tour_Finals_Finals
     # court2D = [[340.8,354.4], [823.2,353.2], [837.6,677.2], [120,675.6]]
     # 4 Court corners of CHOU_Tien_Chen_Anthony_Sinisuka_GINTING_World_Tour_Finals_Group_Stage
-    court2D = [[338.4,329.4], [889.8,332.2], [952.4,705.6], [133.8,695.2]]
+    # court2D = [[338.4,329.4], [889.8,332.2], [952.4,705.6], [133.8,695.2]]
     court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
     hf = Hfinder(None, court2D=court2D, court3D=court3D)
     Hmtx = hf.getH()
@@ -309,7 +240,7 @@ if __name__ == '__main__':
     # Prepare Intrinsic matix of video
     video_h = 720
     video_w = 1280
-    video_focal_length = 2000
+    video_focal_length = 1700
     Kmtx = np.array(
         [[video_focal_length, 0, video_w/2],
          [0, video_focal_length, video_h/2],
@@ -317,7 +248,7 @@ if __name__ == '__main__':
     )
 
     # Pseudo3D trajectory transform (2D->3D)
-    now = 5
+    now = 1
     tf = Pseudo3d(start_wcs=np.array(shots_start[now]), 
         end_wcs=np.array(shots_end[now]), 
         track2D=np.array(shots[now]), 
