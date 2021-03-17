@@ -9,7 +9,8 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from math import sqrt, pi, sin, cos, tan
 
-from Hfinder import Hfinder
+from h2pose.poseFinder import Hfinder
+from h2pose.H2Pose import H2Pose
 from trackDetector import trackDetector
 from tracker2D import tracker2D
 from generator import startGL, readPose, toRad, toDeg, drawCourt, drawNet, drawLogo, drawCircle, patternCircle, drawTrack
@@ -58,11 +59,11 @@ class Pseudo3d_Synth(object):
         # 3D information
         self.H = H
         self.K = K
-        self.Rt = self.getRt()
+        self.Rt, self.c2w, self.Cam_wcs, self.Ori_ccs = self.getPose()
         self.P = self.getP()
 
         # Coord. system changer mtx
-        self.c2w = np.zeros((3,3))
+        # self.c2w = np.zeros((3,3))
 
         # OpenGL Init camera pose parameters for gluLookAt() function
         init_pose, _ = next(readPose(self.cfg, self.args, 1))
@@ -76,35 +77,13 @@ class Pseudo3d_Synth(object):
         # print(self.eye, self.obj, self.up, sep="\n")
 
     def getGeussK(self):
-        # K = np.zeros((3,3))
-        # K[0,0] = self.K[0,0] + self._f
-        # K[1,1] = self.K[1,1] + self._f
-        # K[0,2] = self.K[0,2]
-        # K[1,2] = self.K[1,2]
-        # K[2,2] = 1
-        # print(K)
         return self.K + np.array([[self._f, 0, 0],
                                   [0, self._f, 0],
                                   [0,       0, 0]])
 
-    def getRt(self):
-        R = np.zeros((3,3))
-        t = np.zeros(3)
-        Rt = np.zeros((3,4))
-
-        K_inv = np.linalg.inv(self.getGeussK())
-        H_inv = np.linalg.inv(self.H) # H_inv: wcs -> ccs
-        multiple = K_inv@H_inv[:,0]
-        lamda = 1/np.linalg.norm(multiple, ord=None, axis=None, keepdims=False)
-        
-        R[:,0] = lamda*(K_inv@H_inv[:,0])
-        R[:,1] = lamda*(K_inv@H_inv[:,1])
-        R[:,2] = np.cross(R[:,0], R[:,1])
-        t = np.array(lamda*(K_inv@H_inv[:,2]))
-
-        Rt[:,:3] = R
-        Rt[:,3] = t
-        return Rt
+    def getPose(self):
+        h2p = H2Pose(self.getGeussK(), self.H)
+        return h2p.getRt(), h2p.getC2W(), h2p.getCamera(), h2p.getCenter()
 
     def getP(self):
         P = self.getGeussK() @ self.Rt
@@ -121,57 +100,7 @@ class Pseudo3d_Synth(object):
         return _eye.reshape(-1), self.obj, _up.reshape(-1)
 
     def updateF(self):
-        self.Rt = self.getRt()
-
-        # Get world pose described in CCS
-        print("World pose described in CCS")
-        cir_position_ccs = (self.Rt @ [[0],[0],[0],[1]])
-        cir_pose_i_ccs = (self.Rt @ [[1],[0],[0],[1]]) - cir_position_ccs
-        cir_pose_j_ccs = (self.Rt @ [[0],[1],[0],[1]]) - cir_position_ccs
-        cir_pose_k_ccs = (self.Rt @ [[0],[0],[1],[1]]) - cir_position_ccs
-
-        # print("center")
-        # print(cir_position_ccs.T)
-        # print("pose")
-        # print(cir_pose_i_ccs.T)
-        # print(cir_pose_j_ccs.T)
-        # print(cir_pose_k_ccs.T)
-        # print()
-
-        # Get camera pose described in WCS
-        print("Camera pose described in WCS")
-        self.c2w = np.array(
-            [cir_pose_i_ccs.reshape(-1),
-             cir_pose_j_ccs.reshape(-1),
-             cir_pose_k_ccs.reshape(-1)]
-        )
-        cam_position_wcs = (self.c2w @ -cir_position_ccs)
-        cam_pose_i_wcs = (self.c2w @ [[1],[0],[0]])
-        cam_pose_j_wcs = (self.c2w @ [[0],[1],[0]])
-        cam_pose_k_wcs = (self.c2w @ [[0],[0],[1]])
-
-        # print("center")
-        # print(cam_position_wcs.T)
-        # print("pose")
-        # print(cam_pose_i_wcs.T)
-        # print(cam_pose_j_wcs.T)
-        # print(cam_pose_k_wcs.T)
-        # print()
-
-        # # Get world pose described in Image coord. system
-        # print("World pose described in Image coord. system")
-        # x_2d = (P @ [[1],[0],[0],[1]])
-        # y_2d = (P @ [[0],[1],[0],[1]])
-        # z_2d = (P @ [[0],[0],[1],[1]])
-
-        # x_2d = x_2d / x_2d[2]
-        # y_2d = y_2d / y_2d[2]
-        # z_2d = z_2d / z_2d[2]
-
-        # print(x_2d.T)
-        # print(y_2d.T)
-        # print(z_2d.T)
-        # print("\n")
+        self.Rt, self.c2w, self.Cam_wcs, self.Ori_ccs = self.getPose()
 
         if self.gt:
             td = trackDetector(self.getGeussK(), self.H, 
@@ -180,7 +109,7 @@ class Pseudo3d_Synth(object):
                     [0,-0.5,0.8660254037844387], 
                     [0,-0.8660254037844387,-0.5]]))
         else:
-            td = trackDetector(self.getGeussK(), self.H, cam_position_wcs.T, self.c2w)
+            td = trackDetector(self.getGeussK(), self.H, self.Cam_wcs.reshape(-1), self.c2w)
         td.set2Dtrack(self.track2D)
         td.setShotPoint3d(self.start_wcs, self.end_wcs)
         td.setTrackPlane()
@@ -252,27 +181,27 @@ def drawFunc():
 
     # Draw Pseudo3D track
     pred = tf.updateF()
-    pred = np.array([[-1.52680479,  2.06202114,  2.04934252],
-                     [-1.34739384,  1.67499119,  2.49134506],
-                     [-1.16905542,  1.29068153,  2.88204759],
-                     [-0.9924781,   0.91104616,  3.22891526],
-                     [-0.81207975,  0.5231891,   3.53126069],
-                     [-0.63397124,  0.14283066,  3.78343654],
-                     [-0.46045112, -0.23837983,  3.99178557],
-                     [-0.28176591, -0.62200495,  4.15098372],
-                     [-0.10533186, -1.00410534,  4.26820641],
-                     [ 0.07375752, -1.38452603,  4.337159  ],
-                     [ 0.25253153, -1.77248105,  4.36025826],
-                     [ 0.43151949, -2.15530492,  4.33638467],
-                     [ 0.61271096, -2.53986812,  4.26825079],
-                     [ 0.78954231, -2.91919479,  4.14984721],
-                     [ 0.96996572, -3.30069187,  3.9908667 ],
-                     [ 1.14671596, -3.68684962,  3.78039425],
-                     [ 1.32658648, -4.07093151,  3.52737657],
-                     [ 1.5030584,  -4.45345251,  3.22569203],
-                     [ 1.68413826, -4.8356843,   2.88023936],
-                     [ 1.86211489, -5.22080128,  2.48178244],
-                     [ 2.0396313,  -5.60385936,  2.04277793]])
+    # pred = np.array([[-1.52680479,  2.06202114,  2.04934252],
+    #                  [-1.34739384,  1.67499119,  2.49134506],
+    #                  [-1.16905542,  1.29068153,  2.88204759],
+    #                  [-0.9924781,   0.91104616,  3.22891526],
+    #                  [-0.81207975,  0.5231891,   3.53126069],
+    #                  [-0.63397124,  0.14283066,  3.78343654],
+    #                  [-0.46045112, -0.23837983,  3.99178557],
+    #                  [-0.28176591, -0.62200495,  4.15098372],
+    #                  [-0.10533186, -1.00410534,  4.26820641],
+    #                  [ 0.07375752, -1.38452603,  4.337159  ],
+    #                  [ 0.25253153, -1.77248105,  4.36025826],
+    #                  [ 0.43151949, -2.15530492,  4.33638467],
+    #                  [ 0.61271096, -2.53986812,  4.26825079],
+    #                  [ 0.78954231, -2.91919479,  4.14984721],
+    #                  [ 0.96996572, -3.30069187,  3.9908667 ],
+    #                  [ 1.14671596, -3.68684962,  3.78039425],
+    #                  [ 1.32658648, -4.07093151,  3.52737657],
+    #                  [ 1.5030584,  -4.45345251,  3.22569203],
+    #                  [ 1.68413826, -4.8356843,   2.88023936],
+    #                  [ 1.86211489, -5.22080128,  2.48178244],
+    #                  [ 2.0396313,  -5.60385936,  2.04277793]])
     for i in pred:
         size = 0.05 if tf._f!=0 else 0.03
         if tf.gt:
