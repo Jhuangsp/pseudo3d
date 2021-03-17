@@ -9,7 +9,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from math import sqrt, pi, sin, cos, tan
 
-from h2pose.poseFinder import Hfinder
+from h2pose.Hfinder import Hfinder
 from h2pose.H2Pose import H2Pose
 from trackDetector import trackDetector
 from tracker2D import tracker2D
