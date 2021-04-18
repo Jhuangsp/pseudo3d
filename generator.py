@@ -432,19 +432,23 @@ def sphere(x,y,z,size=0.02):
     glTranslatef(-x,-y,-z)
 
 def drawTrack(start, end):
-    points = 21
+    points = 15
     unit = (end - start) / (points-1)
     x = np.linspace(-1.5, 1.5, points)
     y = -x**2 + 4.25
 
+    tmp2d = []
     for p in range(points):
         x_ = start[0] + p*unit[0]
         y_ = start[1] + p*unit[1]
         z_ = y[p]
         sphere(x_,y_,z_)
-        # print(x_,y_,z_)
+    #     p2d = (K@(w2c@(C-np.array([[x_],[y_],[z_]])))).reshape(-1)
+    #     # print(p2d/p2d[2])
+    #     tmp2d.append((p2d/p2d[2])[0:2].astype(int).tolist())
+    # data2d.append(tmp2d)
 
-def draw(cfg, args, cam, obj, up):
+def draw(cfg, args, cam, obj, up, anchors=None):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
@@ -454,18 +458,22 @@ def draw(cfg, args, cam, obj, up):
 
     # draw badminton court
     drawCourt()
-    drawNet()
+    # drawNet()
 
-    if cfg['pattern'] == "two_circle":
-        # draw pattern for two circle method
-        patternCircle(radius=cfg['size'], space=cfg['space'])
-    elif cfg['pattern'] == "chessboard":
-        # draw pattern for chessboard method
-        patternChess(cube_size=cfg['size'], chess_size=cfg['chess'])
+    # if cfg['pattern'] == "two_circle":
+    #     # draw pattern for two circle method
+    #     patternCircle(radius=cfg['size'], space=cfg['space'])
+    # elif cfg['pattern'] == "chessboard":
+    #     # draw pattern for chessboard method
+    #     patternChess(cube_size=cfg['size'], chess_size=cfg['chess'])
     image = getImg(cfg, args)
 
-    start = np.array([-1.5, 2])
-    end   = np.array([2, -5.5])
+    if anchors:
+        start = np.array(anchors[0])
+        end   = np.array(anchors[1])
+    else:
+        start = np.array([-1.5, 2])
+        end   = np.array([2, -5.5])
     drawCircle(start, 0.05, [0, 255, 255])
     drawCircle(end, 0.05, [255, 255, 0])
     drawTrack(start, end)
@@ -475,13 +483,30 @@ def draw(cfg, args, cam, obj, up):
     return image, track
 
 
+# data2d = []
+
+# K = np.array([
+#     [1456.1630323109498, 0, 1920/2],
+#     [0, 1456.1630323109498, 1060/2],
+#     [0, 0, 1]])
+
+# w2c = np.array([
+#     [1,0,0],
+#     [0,-0.4999999999999999,-0.8660254037844387],
+#     [0.0,0.8660254037844387,-0.4999999999999999]])
+
+# C = np.array([[0.0],
+#     [-15.588457268119896],
+#     [8.999999999999998]])
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", type=str, help='pose config json file')
+    parser.add_argument("--data", type=str, help='track data file')
     parser.add_argument("--fovy", type=float, default=40, help='fovy of image')
     parser.add_argument("--height", type=int, default=1060, help='height of image')
     parser.add_argument("--width", type=int, default=1920, help='width of image')
-    parser.add_argument("--num", type=int, default=10000,
+    parser.add_argument("--num", type=int, default=1,
                         help='number of samples')
     parser.add_argument("--out", type=str, required=True, help='output path')
     args = parser.parse_args()
@@ -498,8 +523,21 @@ if __name__ == '__main__':
     setupPath(args.out)
     setupPath(os.path.join(args.out, 'labels'))
 
-    for i, (pose_gl, label) in enumerate(readPose(cfg, args, args.num)):
-        img, track = draw(cfg, args, pose_gl[0], pose_gl[1], pose_gl[2])
-        cv2.imwrite(os.path.join(args.out,'calib_{:08d}.png'.format(i)), img)
-        cv2.imwrite(os.path.join(args.out,'track_{:08d}.png'.format(i)), track)
-        writeLabel(label, os.path.join(args.out, 'labels', 'label_{:08d}.yml'.format(i)))
+    if args.data:
+        f = open(args.data)
+        anchors = json.load(f)
+        f.close()
+
+        pose_gl, label = next(readPose(cfg, args, 1))
+        for i, (As, Ae) in enumerate(zip(anchors["start"], anchors["end"])):
+            img, track = draw(cfg, args, pose_gl[0], pose_gl[1], pose_gl[2], (As, Ae))
+            # cv2.imwrite(os.path.join(args.out,'calib_{:08d}.png'.format(i)), img)
+            cv2.imwrite(os.path.join(args.out,'track_{:08d}.png'.format(i)), track)
+        writeLabel(label, os.path.join(args.out, 'labels', 'label_{:08d}.yml'.format(0)))
+        # np.save(os.path.join(args.out,'data2d.npy'), data2d)
+    else:
+        for i, (pose_gl, label) in enumerate(readPose(cfg, args, args.num)):
+            img, track = draw(cfg, args, pose_gl[0], pose_gl[1], pose_gl[2])
+            # cv2.imwrite(os.path.join(args.out,'calib_{:08d}.png'.format(i)), img)
+            cv2.imwrite(os.path.join(args.out,'track_{:08d}.png'.format(i)), track)
+            writeLabel(label, os.path.join(args.out, 'labels', 'label_{:08d}.yml'.format(i)))
