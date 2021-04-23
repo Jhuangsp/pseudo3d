@@ -97,19 +97,43 @@ class Pseudo3d(object):
 
         return _eye.reshape(-1), self.obj, _up.reshape(-1)
 
-    def updateF(self):
+    def updateF(self, silence=False, noise=0):
         self.Rt, self.c2w, self.Cam_wcs, self.Ori_ccs = self.getPose()
 
+        # To evaluate Pose Estimation Noise
+        if noise > 0:
+            # print(self.c2w)
+            if not silence:
+                print('@@@@@@@@@@@@@@ Adding noise to Pose @@@@@@@@@@@@@@')
+            d = toRad(noise)
+            d = (np.random.rand((1))*2-0.5)*d
+            Rx = np.array([[1,0,0],[0,cos(d),-sin(d)],[0,sin(d),cos(d)]])
+            Ry = np.array([[cos(d),0,sin(d)],[0,1,0],[-sin(d),0,cos(d)]])
+            Rz = np.array([[cos(d),-sin(d),0],[sin(d),cos(d),0],[0,0,1]])
+            self.c2w = (Rz@Ry@Rx@self.c2w.T).T
+            # print(self.c2w)
+            # os._exit(0)
+
         if self.gt:
+            if not silence:
+                print('@@@@@@@@@@@@@@ Using GT @@@@@@@@@@@@@@')
             self.td = trackDetector(self.getGeussK(), self.H, 
                 [0.0, -15.588457268119896, 8.999999999999998], 
                 np.array([[1,0,0], 
                     [0,-0.5,0.8660254037844387], 
-                    [0,-0.8660254037844387,-0.5]]))
+                    [0,-0.8660254037844387,-0.5]]), silence=silence)
         else:
-            self.td = trackDetector(self.getGeussK(), self.H, self.Cam_wcs.reshape(-1), self.c2w)
+            if not silence:
+                print('@@@@@@@@@@@@@@ Using PD @@@@@@@@@@@@@@')
+            self.td = trackDetector(self.getGeussK(), self.H, self.Cam_wcs.reshape(-1), self.c2w, silence=silence)
         self.td.set2Dtrack(self.track2D)
-        self.td.setShotPoint2d(self.start_wcs, self.end_wcs)
+        if self.start_wcs.shape[0] == 2 and self.end_wcs.shape[0] == 2:
+            self.td.setShotPoint2d(self.start_wcs, self.end_wcs)
+        elif self.start_wcs.shape[0] == 3 and self.end_wcs.shape[0] == 3:
+            self.td.setShotPoint3d(self.start_wcs, self.end_wcs)
+        else:
+            print("wrong anchor format")
+            exit(-1)
         self.td.setTrackPlane()
         self.track3D = self.td.get3Dtrack()
         return self.track3D
@@ -160,7 +184,7 @@ def drawFunc():
     drawNet()
 
     # Draw Pseudo3D track
-    pred = tf.updateF()
+    pred = tf.updateF(silence=True)
     for i in pred:
         size = 0.05 if tf._f!=0 else 0.05
         if tf.gt:
@@ -236,6 +260,10 @@ if __name__ == '__main__':
     court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
     hf = Hfinder(None, court2D=court2D, court3D=court3D)
     Hmtx = hf.getH()
+    f = open('real_track/stereo_thesis/homography/cam00.json')
+    Hmtx = np.array(json.load(f))
+    f.close()
+    print(Hmtx)
 
     # Prepare Intrinsic matix of video
     video_h = 720
@@ -246,9 +274,14 @@ if __name__ == '__main__':
          [0, video_focal_length, video_h/2],
          [0,                  0,         1]]
     )
+    f = open('real_track/stereo_thesis/intrinsic/cam00.json')
+    Kmtx = np.array(json.load(f)['Kmtx'])
+    f.close()
+    print(Kmtx)
 
     # Pseudo3D trajectory transform (2D->3D)
     now = 1
+    print(np.array(shots_start[now]));exit(0)
     tf = Pseudo3d(start_wcs=np.array(shots_start[now]), 
         end_wcs=np.array(shots_end[now]), 
         track2D=np.array(shots[now]), 

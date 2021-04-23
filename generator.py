@@ -458,7 +458,7 @@ def draw(cfg, args, cam, obj, up, anchors=None):
 
     # draw badminton court
     drawCourt()
-    # drawNet()
+    drawNet()
 
     # if cfg['pattern'] == "two_circle":
     #     # draw pattern for two circle method

@@ -1,0 +1,142 @@
+# general
+python eval.py --task pcam1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\
+python eval.py --task pcam2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\
+python eval.py --task pcam3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\
+python eval.py --task pcam4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\
+
+python eval.py --task mcam12 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\
+python eval.py --task mcam13 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\
+python eval.py --task mcam14 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\
+python eval.py --task mcam23 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\
+python eval.py --task mcam24 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\
+python eval.py --task mcam34 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\
+
+# 2d detection noise
+python eval.py --task pcam1_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --noise 5
+python eval.py --task pcam2_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --noise 5
+python eval.py --task pcam3_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --noise 5
+python eval.py --task pcam4_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --noise 5
+
+python eval.py --task mcam12_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --noise 5
+python eval.py --task mcam13_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\ --noise 5
+python eval.py --task mcam14_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\ --noise 5
+python eval.py --task mcam23_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\ --noise 5
+python eval.py --task mcam24_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\ --noise 5
+python eval.py --task mcam34_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\ --noise 5
+
+# anchor point noise
+python eval.py --task pcam1_anoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 1
+python eval.py --task pcam1_anoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 2
+python eval.py --task pcam1_anoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 3
+python eval.py --task pcam1_anoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 4
+python eval.py --task pcam1_anoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 5
+
+python eval.py --task pcam2_anoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 1
+python eval.py --task pcam2_anoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 2
+python eval.py --task pcam2_anoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 3
+python eval.py --task pcam2_anoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 4
+python eval.py --task pcam2_anoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 5
+
+python eval.py --task pcam3_anoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 1
+python eval.py --task pcam3_anoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 2
+python eval.py --task pcam3_anoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 3
+python eval.py --task pcam3_anoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 4
+python eval.py --task pcam3_anoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 5
+
+python eval.py --task pcam4_anoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 1
+python eval.py --task pcam4_anoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 2
+python eval.py --task pcam4_anoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 3
+python eval.py --task pcam4_anoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 4
+python eval.py --task pcam4_anoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --anoise 5
+
+# pose noise
+python eval.py --task pcam1_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.1
+python eval.py --task pcam1_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.2
+python eval.py --task pcam1_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.3
+python eval.py --task pcam1_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.4
+python eval.py --task pcam1_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.5
+																																														
+python eval.py --task pcam2_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.1
+python eval.py --task pcam2_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.2
+python eval.py --task pcam2_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.3
+python eval.py --task pcam2_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.4
+python eval.py --task pcam2_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.5
+																																														
+python eval.py --task pcam3_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.1
+python eval.py --task pcam3_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.2
+python eval.py --task pcam3_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.3
+python eval.py --task pcam3_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.4
+python eval.py --task pcam3_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.5
+																																														
+python eval.py --task pcam4_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.1
+python eval.py --task pcam4_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.2
+python eval.py --task pcam4_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.3
+python eval.py --task pcam4_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.4
+python eval.py --task pcam4_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.5
+
+python eval.py --task mcam12_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.1
+python eval.py --task mcam12_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.2
+python eval.py --task mcam12_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.3
+python eval.py --task mcam12_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.4
+python eval.py --task mcam12_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --pnoise 0.5
+
+python eval.py --task mcam13_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.1
+python eval.py --task mcam13_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.2
+python eval.py --task mcam13_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.3
+python eval.py --task mcam13_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.4
+python eval.py --task mcam13_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.5
+
+python eval.py --task mcam14_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.1
+python eval.py --task mcam14_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.2
+python eval.py --task mcam14_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.3
+python eval.py --task mcam14_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.4
+python eval.py --task mcam14_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.5
+
+python eval.py --task mcam23_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.1
+python eval.py --task mcam23_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.2
+python eval.py --task mcam23_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.3
+python eval.py --task mcam23_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.4
+python eval.py --task mcam23_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\ --pnoise 0.5
+
+python eval.py --task mcam24_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.1
+python eval.py --task mcam24_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.2
+python eval.py --task mcam24_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.3
+python eval.py --task mcam24_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.4
+python eval.py --task mcam24_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.5
+
+python eval.py --task mcam34_pnoise1 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.1
+python eval.py --task mcam34_pnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.2
+python eval.py --task mcam34_pnoise3 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.3
+python eval.py --task mcam34_pnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.4
+python eval.py --task mcam34_pnoise5 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\ --pnoise 0.5
+
+# resize noise
+python eval.py --task pcam1_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 2
+python eval.py --task pcam1_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 4
+
+python eval.py --task pcam2_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 2
+python eval.py --task pcam2_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 4
+
+python eval.py --task pcam3_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 2
+python eval.py --task pcam3_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 4
+
+python eval.py --task pcam4_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 2
+python eval.py --task pcam4_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera4\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 4
+
+python eval.py --task mcam12_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 2
+python eval.py --task mcam12_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --rnoise 4
+
+python eval.py --task mcam13_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\ --rnoise 2
+python eval.py --task mcam13_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera3\ --rnoise 4
+
+python eval.py --task mcam14_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\ --rnoise 2
+python eval.py --task mcam14_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera4\ --rnoise 4
+
+python eval.py --task mcam23_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\ --rnoise 2
+python eval.py --task mcam23_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\ --rnoise 4
+
+python eval.py --task mcam24_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\ --rnoise 2
+python eval.py --task mcam24_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\ --rnoise 4
+
+python eval.py --task mcam34_rnoise2 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\ --rnoise 2
+python eval.py --task mcam34_rnoise4 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\ --rnoise 4

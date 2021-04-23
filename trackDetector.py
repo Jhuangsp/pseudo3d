@@ -30,8 +30,9 @@ def ccs2wcs(points):
 
 class trackDetector(object):
     """docstring for trackDetector"""
-    def __init__(self, intrinsic, H, camCenter, c2w):
+    def __init__(self, intrinsic, H, camCenter, c2w, silence=False):
         super(trackDetector, self).__init__()
+        self.silence = silence
         self.f = (intrinsic[0,0] + intrinsic[1,1]) / 2
         self.p = (intrinsic[0,2], intrinsic[1,2])
         # src_pts = [(-3.05, 6.7), (3.05, 6.7), (3.05, -6.7), (-3.05, -6.7)]
@@ -56,12 +57,14 @@ class trackDetector(object):
 
         # 2D track described in WCS
         # self.track2D_wcs = self.campos.ccs2wcs(self.track2D_ccs)
-        print("2D in CCS")
-        pp.pprint(self.track2D_ccs)
+        if not self.silence:
+            print("2D in CCS")
+            pp.pprint(self.track2D_ccs)
         # self.track2D_wcs = ccs2wcs(self.track2D_ccs)
         self.track2D_wcs = (self.c2w @ self.track2D_ccs.T).T
-        print("2D in WCS")
-        pp.pprint(self.track2D_wcs)
+        if not self.silence:
+            print("2D in WCS")
+            pp.pprint(self.track2D_wcs)
 
     def setShotPoint2d(self, strat, end):
         # Transform image point to WCS
@@ -70,6 +73,8 @@ class trackDetector(object):
         self.end_wcs   = (self.H @ np.array([[end[0]],[end[1]],[1]])).reshape(-1)
         self.start_wcs = (self.start_wcs / self.start_wcs[2])#  - self.o_wcs
         self.end_wcs   = (self.end_wcs / self.end_wcs[2])#  - self.o_wcs
+        self.start_wcs[2] = 0
+        self.end_wcs[2] = 0
 
         # Align X-Y axis
         # self.start_wcs = self.start_wcs * [1,-1, 1]
@@ -78,31 +83,39 @@ class trackDetector(object):
         # Unified unit (2cm -> m)
         # self.start_wcs /= 50
         # self.end_wcs   /= 50
-        print('Set Start point (wcs)', self.start_wcs)
-        print('Set End point (wcs)', self.end_wcs)
+        if not self.silence:
+            print('Set Start point (wcs)', self.start_wcs)
+            print('Set End point (wcs)', self.end_wcs)
 
     def setShotPoint3d(self, strat, end):
         self.start_wcs = strat
         self.end_wcs   = end
+        if not self.silence:
+            print('Set Start point (wcs)', self.start_wcs)
+            print('Set End point (wcs)', self.end_wcs)
 
     def setTrackPlane(self):
         # Calculate the Normal vector of the Track Plane
         direction = self.end_wcs - self.start_wcs
-        print('Shooting direction (wcs)',direction)
+        if not self.silence:
+            print('Shooting direction (wcs)',direction)
         self.N = np.array([direction[1], -direction[0], 0])
         self.N /= np.linalg.norm(self.N)
-        print("N of track plane", self.N)
+        if not self.silence:
+            print("N of track plane", self.N)
 
     def get3Dtrack(self):
         self.molecular = ((self.start_wcs - self.camera_wcs) * self.N).sum()
         self.decimal = (self.track2D_wcs * self.N).sum(axis=1)
 
         self.t = (self.molecular/self.decimal).reshape(-1,1)
-        print("Scale factor from 2D to 3D")
-        print(self.t)
+        if not self.silence:
+            print("Scale factor from 2D to 3D")
+            print(self.t)
         self.track3D_wcs = self.track2D_wcs * self.t + self.camera_wcs
-        print("3D in WCS")
-        pp.pprint(self.track3D_wcs)
+        if not self.silence:
+            print("3D in WCS")
+            pp.pprint(self.track3D_wcs)
         return self.track3D_wcs
 
 

@@ -31,10 +31,14 @@ def reshape(w, h):
 
 class Pseudo3d_Synth(object):
     """docstring for Pseudo3d_Synth"""
-    def __init__(self, track2D, args, H, K, path_j=None, anchors=None):
+    def __init__(self, track2D, path_j, args, H, K):
         super(Pseudo3d_Synth, self).__init__()
+
+        jsonf = open(path_j)
+        self.cfg = json.load(jsonf)
+        jsonf.close()
         self.args = args
-        self.gt = False
+        self.gt = True
 
         # Opengl param
         self.fovy = 0
@@ -44,12 +48,8 @@ class Pseudo3d_Synth(object):
         self.quadric = gluNewQuadric()
 
         # Curve param
-        if anchors:
-            self.start_wcs = np.array([anchors[0][0], anchors[0][1], 0])
-            self.end_wcs = np.array([anchors[1][0], anchors[1][1], 0])
-        else:
-            self.start_wcs = np.array([-1.5, 2, 0])
-            self.end_wcs = np.array([2, -5.5, 0])
+        self.start_wcs = np.array([-1.5, 2, 0])
+        self.end_wcs = np.array([2, -5.5, 0])
         self.track2D = track2D
 
         # Visualizer changable factor
@@ -66,12 +66,8 @@ class Pseudo3d_Synth(object):
         # self.c2w = np.zeros((3,3))
 
         # OpenGL Init camera pose parameters for gluLookAt() function
-        if path_j:
-            jsonf = open(path_j)
-            self.cfg = json.load(jsonf)
-            jsonf.close()
-            init_pose, _ = next(readPose(self.cfg, self.args, 1))
-            self.setupCam(init_pose, self.args.fovy)
+        init_pose, _ = next(readPose(self.cfg, self.args, 1))
+        self.setupCam(init_pose, self.args.fovy)
 
     def setupCam(self, pose, fovy):
         self.eye = pose[0]
@@ -103,27 +99,17 @@ class Pseudo3d_Synth(object):
 
         return _eye.reshape(-1), self.obj, _up.reshape(-1)
 
-    def updateF(self, silence=False, noise=0):
+    def updateF(self):
         self.Rt, self.c2w, self.Cam_wcs, self.Ori_ccs = self.getPose()
-        if noise > 0:
-            # print(self.c2w)
-            d = toRad(noise)
-            d = (np.random.rand((1))*2-0.5)*d
-            Rx = np.array([[1,0,0],[0,cos(d),-sin(d)],[0,sin(d),cos(d)]])
-            Ry = np.array([[cos(d),0,sin(d)],[0,1,0],[-sin(d),0,cos(d)]])
-            Rz = np.array([[cos(d),-sin(d),0],[sin(d),cos(d),0],[0,0,1]])
-            self.c2w = (Rz@Ry@Rx@self.c2w.T).T
-            # print(self.c2w)
-            # os._exit(0)
 
         if self.gt:
             td = trackDetector(self.getGeussK(), self.H, 
                 [0.0, -15.588457268119896, 8.999999999999998], 
                 np.array([[1,0,0], 
                     [0,-0.5,0.8660254037844387], 
-                    [0,-0.8660254037844387,-0.5]]), silence=silence)
+                    [0,-0.8660254037844387,-0.5]]))
         else:
-            td = trackDetector(self.getGeussK(), self.H, self.Cam_wcs.reshape(-1), self.c2w, silence=silence)
+            td = trackDetector(self.getGeussK(), self.H, self.Cam_wcs.reshape(-1), self.c2w)
         td.set2Dtrack(self.track2D)
         td.setShotPoint3d(self.start_wcs, self.end_wcs)
         td.setTrackPlane()
@@ -191,7 +177,7 @@ def drawFunc():
     # Draw Ground Truth track & ancher point
     drawCircle(tf.start_wcs[:2], 0.05, [0, 255, 255])
     drawCircle(tf.end_wcs[:2], 0.05, [255, 255, 0])
-    # drawTrack(tf.start_wcs[:2], tf.end_wcs[:2])
+    drawTrack(tf.start_wcs[:2], tf.end_wcs[:2])
 
     # Draw Pseudo3D track
     pred = tf.updateF()
@@ -228,64 +214,75 @@ def drawFunc():
 
     glutSwapBuffers()
 
+class ballPicker(object):
+    """docstring for ballPicker"""
+    def __init__(self):
+        super(ballPicker, self).__init__()
+
+        self.ballcolor = [0,0,0]
+        self.frame = None
+        cv2.namedWindow("Please pick ball color")
+        cv2.setMouseCallback("Please pick ball color", self.mouseEvent)
+        self.pick()
+
+    def mouseEvent(self, event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONUP:
+            self.ballcolor = self.frame[y,x]
+            print(self.ballcolor)
+
+    def pick(self):
+        cap = cv2.VideoCapture(0)
+        key = 0
+        while key != 27:
+            ret, self.frame = cap.read()
+            if ret:
+                cv2.imshow('Please pick ball color', self.frame)
+                key = cv2.waitKey(30)
+        cap.release()
+        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--json", type=str, default="synthetic_track/mono/track.json", help='pose config json file')
-    parser.add_argument("--data", type=str, help='track data file')
-    parser.add_argument("--image", type=str, default="synthetic_track/mono/track_00000000.png", help='image to be predict')
+    # parser.add_argument("--json", type=str, default="synthetic_track/mono/track.json", help='pose config json file')
     parser.add_argument("--fovy", type=float, default=40, help='fovy of image')
     parser.add_argument("--height", type=int, default=1060, help='height of image')
     parser.add_argument("--width", type=int, default=1920, help='width of image')
     args = parser.parse_args()
 
+
     # Prepare Synthetic data
-    img = cv2.imread(args.image)
-    tr2d = tracker2D(img)
-    # tr2d.getTrack2D()
+    bp = ballPicker()
+    # img = cv2.imread("synthetic_track/mono/track_00000000.png")
+    # tr2d = tracker2D(img)
+    # # tr2d.getTrack2D()
 
-    # Prepare Homography matrix (image(pixel) -> court(meter))
-    court2D = []
-    court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
-    hf = Hfinder(img, court2D=court2D, court3D=court3D)
-    Hmtx = hf.getH()
-    print(Hmtx)
+    # # Prepare Homography matrix (image(pixel) -> court(meter))
+    # court2D = []
+    # court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
+    # hf = Hfinder(img, court2D=court2D, court3D=court3D)
+    # Hmtx = hf.getH()
 
-    # f = open(os.path.join('synthetic_track/stereo_thesis/camera2', 'Hmtx.json'))
-    # Hmtx = np.array(json.load(f))
-    # f.close()
-    # with open('Hmtx.json', 'w') as outfile:
-    #     json.dump(Hmtx.tolist(), outfile)
+    # # Prepare Intrinsic matix of video
+    # video_h = img.shape[0]
+    # video_w = img.shape[1]
+    # video_focal_length = video_h / (2*tan(pi*args.fovy/360))
+    # Kmtx = np.array(
+    #     [[video_focal_length, 0, video_w/2],
+    #      [0, video_focal_length, video_h/2],
+    #      [0,                  0,         1]]
+    # )
 
-    # Prepare Intrinsic matix of video
-    video_h = img.shape[0]
-    video_w = img.shape[1]
-    video_focal_length = video_h / (2*tan(pi*args.fovy/360))
-    Kmtx = np.array(
-        [[video_focal_length, 0, video_w/2],
-         [0, video_focal_length, video_h/2],
-         [0,                  0,         1]]
-    )
+    # tf = Pseudo3d_Synth(
+    #     track2D=tr2d.getTrack2D(),
+    #     path_j=args.json, 
+    #     args=args, 
+    #     H=Hmtx, 
+    #     K=Kmtx
+    # )
 
-    if args.data:
-        f = open(args.data)
-        anchors = json.load(f)
-        f.close()
-    else:
-        anchors = None
-
-    tf = Pseudo3d_Synth(
-        track2D=tr2d.getTrack2D(),
-        args=args, 
-        H=Hmtx, 
-        K=Kmtx,
-        path_j=args.json, 
-        anchors=(anchors["start"][0], anchors["end"][0]) if args.data else None
-    )
-
-    # OpenGL visualizer Init
-    startGL(args)
-    glutReshapeFunc(reshape)
-    glutKeyboardFunc(keyboardFunc)
-    glutDisplayFunc(drawFunc)
-    glutMainLoop()
+    # # OpenGL visualizer Init
+    # startGL(args)
+    # glutReshapeFunc(reshape)
+    # glutKeyboardFunc(keyboardFunc)
+    # glutDisplayFunc(drawFunc)
+    # glutMainLoop()

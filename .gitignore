@@ -130,7 +130,15 @@ dmypy.json
 
 sssss.py
 122.jpg
+*.png
 check.py
 h2pose/*
 Hfinder.py
 synthetic_track/stereo_thesis/*
+real_track/stereo_thesis/*
+evaluation/2d_noise/*
+evaluation/anchor_noise/*
+evaluation/pose_noise/*
+evaluation/real_2d_noise/*
+evaluation/real_anchor_noise/*
+evaluation/real_pose_noise/*

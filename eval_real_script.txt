@@ -1,0 +1,84 @@
+# general
+python eval_real.py --task real_pcam0 --mono cam00 --stereo cam00 cam01 cam03
+python eval_real.py --task real_pcam1 --mono cam01 --stereo cam00 cam01 cam03
+python eval_real.py --task real_pcam2 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_pcam3 --mono cam03 --stereo cam00 cam01 cam03
+
+python eval_real.py --task real_mcam01 --mono cam02 --stereo cam00 cam01
+python eval_real.py --task real_mcam02 --mono cam02 --stereo cam00 cam02
+python eval_real.py --task real_mcam03 --mono cam02 --stereo cam00 cam03
+python eval_real.py --task real_mcam12 --mono cam02 --stereo cam01 cam02
+python eval_real.py --task real_mcam13 --mono cam02 --stereo cam01 cam03
+python eval_real.py --task real_mcam23 --mono cam02 --stereo cam02 cam03
+
+python eval_real.py --task real_mcam012 --mono cam02 --stereo cam00 cam01 cam02
+python eval_real.py --task real_mcam013 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_mcam023 --mono cam02 --stereo cam00 cam02 cam03
+python eval_real.py --task real_mcam123 --mono cam02 --stereo cam01 cam02 cam03
+
+
+# 2d detection noise
+python eval_real.py --task real_pcam0_noise --mono cam00 --stereo cam00 cam01 cam03 --noise 5
+python eval_real.py --task real_pcam1_noise --mono cam01 --stereo cam00 cam01 cam03 --noise 5
+python eval_real.py --task real_pcam2_noise --mono cam02 --stereo cam00 cam01 cam03 --noise 5
+python eval_real.py --task real_pcam3_noise --mono cam03 --stereo cam00 cam01 cam03 --noise 5
+
+python eval_real.py --task real_mcam01_noise --mono cam02 --stereo cam00 cam01 --noise 5
+python eval_real.py --task real_mcam02_noise --mono cam02 --stereo cam00 cam02 --noise 5
+python eval_real.py --task real_mcam03_noise --mono cam02 --stereo cam00 cam03 --noise 5
+python eval_real.py --task real_mcam12_noise --mono cam02 --stereo cam01 cam02 --noise 5
+python eval_real.py --task real_mcam13_noise --mono cam02 --stereo cam01 cam03 --noise 5
+python eval_real.py --task real_mcam23_noise --mono cam02 --stereo cam02 cam03 --noise 5
+
+python eval_real.py --task real_mcam012_noise --mono cam02 --stereo cam00 cam01 cam02 --noise 5
+python eval_real.py --task real_mcam013_noise --mono cam02 --stereo cam00 cam01 cam03 --noise 5
+python eval_real.py --task real_mcam023_noise --mono cam02 --stereo cam00 cam02 cam03 --noise 5
+python eval_real.py --task real_mcam123_noise --mono cam02 --stereo cam01 cam02 cam03 --noise 5
+
+
+# anchor point noise
+python eval_real.py --task real_pcam0_anoise1 --mono cam00 --stereo cam00 cam01 cam03 --anoise 1
+python eval_real.py --task real_pcam0_anoise2 --mono cam00 --stereo cam00 cam01 cam03 --anoise 2
+python eval_real.py --task real_pcam0_anoise3 --mono cam00 --stereo cam00 cam01 cam03 --anoise 3
+python eval_real.py --task real_pcam0_anoise4 --mono cam00 --stereo cam00 cam01 cam03 --anoise 4
+python eval_real.py --task real_pcam0_anoise5 --mono cam00 --stereo cam00 cam01 cam03 --anoise 5
+
+python eval_real.py --task real_pcam1_anoise1 --mono cam01 --stereo cam00 cam01 cam03 --anoise 1
+python eval_real.py --task real_pcam1_anoise2 --mono cam01 --stereo cam00 cam01 cam03 --anoise 2
+python eval_real.py --task real_pcam1_anoise3 --mono cam01 --stereo cam00 cam01 cam03 --anoise 3
+python eval_real.py --task real_pcam1_anoise4 --mono cam01 --stereo cam00 cam01 cam03 --anoise 4
+python eval_real.py --task real_pcam1_anoise5 --mono cam01 --stereo cam00 cam01 cam03 --anoise 5
+
+python eval_real.py --task real_pcam2_anoise1 --mono cam02 --stereo cam00 cam01 cam03 --anoise 1
+python eval_real.py --task real_pcam2_anoise2 --mono cam02 --stereo cam00 cam01 cam03 --anoise 2
+python eval_real.py --task real_pcam2_anoise3 --mono cam02 --stereo cam00 cam01 cam03 --anoise 3
+python eval_real.py --task real_pcam2_anoise4 --mono cam02 --stereo cam00 cam01 cam03 --anoise 4
+python eval_real.py --task real_pcam2_anoise5 --mono cam02 --stereo cam00 cam01 cam03 --anoise 5
+
+python eval_real.py --task real_pcam3_anoise1 --mono cam03 --stereo cam00 cam01 cam03 --anoise 1
+python eval_real.py --task real_pcam3_anoise2 --mono cam03 --stereo cam00 cam01 cam03 --anoise 2
+python eval_real.py --task real_pcam3_anoise3 --mono cam03 --stereo cam00 cam01 cam03 --anoise 3
+python eval_real.py --task real_pcam3_anoise4 --mono cam03 --stereo cam00 cam01 cam03 --anoise 4
+python eval_real.py --task real_pcam3_anoise5 --mono cam03 --stereo cam00 cam01 cam03 --anoise 5
+
+
+# pose noise
+python eval_real.py --task real_pcam2 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_pcam2 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_pcam2 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_pcam2 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_pcam2 --mono cam02 --stereo cam00 cam01 cam03
+
+python eval_real.py --task real_mcam02 --mono cam02 --stereo cam00 cam02
+python eval_real.py --task real_mcam02 --mono cam02 --stereo cam00 cam02
+python eval_real.py --task real_mcam02 --mono cam02 --stereo cam00 cam02
+python eval_real.py --task real_mcam02 --mono cam02 --stereo cam00 cam02
+python eval_real.py --task real_mcam02 --mono cam02 --stereo cam00 cam02
+
+python eval_real.py --task real_mcam013 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_mcam013 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_mcam013 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_mcam013 --mono cam02 --stereo cam00 cam01 cam03
+python eval_real.py --task real_mcam013 --mono cam02 --stereo cam00 cam01 cam03
+
+
