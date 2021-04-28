@@ -47,7 +47,7 @@ def draw(perr, merr, name):
     print(df3)
     sns.set(rc={'figure.figsize':(5.5,8)})
     ax = sns.boxplot(x=df3["Algorithm"], y=df3["Error per shot (m)"], width=0.2)
-    ax.set(ylim=(-0.01, 2.2))
+    ax.set(ylim=(-0.01, 0.2))
     # plt.show()
     plt.savefig("result_{}.png".format(name))
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     # parser.add_argument("--homo", type=str, help='homography matrix')
     parser.add_argument("--data", type=str, help='track data file')
     parser.add_argument("--cam1", type=str, help='camera to perform pseudo3D')
-    parser.add_argument("--cam2", type=str, help='second camera for triangulation')    
+    parser.add_argument("--cam2", type=str, help='second camera for triangulation')
     parser.add_argument("--fovy", type=float, default=40, help='fovy of image')
     parser.add_argument("--height", type=int, default=1060, help='height of image')
     parser.add_argument("--width", type=int, default=1920, help='width of image')

@@ -431,8 +431,7 @@ def sphere(x,y,z,size=0.02):
     gluSphere(quadric,size,32,32)
     glTranslatef(-x,-y,-z)
 
-def drawTrack(start, end):
-    points = 15
+def drawTrack(start, end, points=15):
     unit = (end - start) / (points-1)
     x = np.linspace(-1.5, 1.5, points)
     y = -x**2 + 4.25

@@ -191,7 +191,7 @@ def drawFunc():
     # Draw Ground Truth track & ancher point
     drawCircle(tf.start_wcs[:2], 0.05, [0, 255, 255])
     drawCircle(tf.end_wcs[:2], 0.05, [255, 255, 0])
-    # drawTrack(tf.start_wcs[:2], tf.end_wcs[:2])
+    drawTrack(tf.start_wcs[:2], tf.end_wcs[:2], points=21)
 
     # Draw Pseudo3D track
     pred = tf.updateF()
@@ -217,11 +217,11 @@ def drawFunc():
     #                  [ 1.86211489, -5.22080128,  2.48178244],
     #                  [ 2.0396313,  -5.60385936,  2.04277793]])
     for i in pred:
-        size = 0.05 if tf._f!=0 else 0.03
+        size = 0.05 if tf._f!=0 else 0.03 +0.02
         if tf.gt:
             sphere(i[0], i[1], i[2], color=[0,1,1], size = size)
         else:
-            sphere(i[0], i[1], i[2], color=[0,1,0], size = size)
+            sphere(i[0], i[1], i[2], color=[1,1,0], size = size)
 
     print("Focal length offset:", tf._f, "Deg:", toDeg(tf.rad))
     print()

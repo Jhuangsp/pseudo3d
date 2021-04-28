@@ -260,10 +260,6 @@ if __name__ == '__main__':
     court3D = [[-3.05, 6.7], [3.05, 6.7], [3.05, -6.7], [-3.05, -6.7]]
     hf = Hfinder(None, court2D=court2D, court3D=court3D)
     Hmtx = hf.getH()
-    f = open('real_track/stereo_thesis/homography/cam00.json')
-    Hmtx = np.array(json.load(f))
-    f.close()
-    print(Hmtx)
 
     # Prepare Intrinsic matix of video
     video_h = 720
@@ -274,14 +270,9 @@ if __name__ == '__main__':
          [0, video_focal_length, video_h/2],
          [0,                  0,         1]]
     )
-    f = open('real_track/stereo_thesis/intrinsic/cam00.json')
-    Kmtx = np.array(json.load(f)['Kmtx'])
-    f.close()
-    print(Kmtx)
 
     # Pseudo3D trajectory transform (2D->3D)
     now = 1
-    print(np.array(shots_start[now]));exit(0)
     tf = Pseudo3d(start_wcs=np.array(shots_start[now]), 
         end_wcs=np.array(shots_end[now]), 
         track2D=np.array(shots[now]), 

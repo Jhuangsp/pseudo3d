@@ -37,24 +37,27 @@ def draw(perr, merr, name):
     # plt.show()
     plt.savefig("result_{}.png".format(name))
 
+
 def loadTrack(cams, path):
     track2ds = {}
     for cam in cams:
         track2ds[cam] = []
     rallys = [os.path.join(path, f) for f in os.listdir(path) if not os.path.isfile(os.path.join(path, f))]
     for rally in rallys:
+        print(rally)
         files = [os.path.join(rally, f) for f in os.listdir(rally) if os.path.isfile(os.path.join(rally, f))]
         for cam in cams:
             for f_cam in files:
                 if cam in f_cam:
                     df = pd.read_csv(f_cam)
-                    track2ds[cam].append(df.to_numpy())
+                    track2ds[cam].append(df[['Frame', 'Visibility', 'X', 'Y']].to_numpy())
     return track2ds
 
 def loadHit(cams, path):
     hits = []
     rallys_hits = [os.path.join(path, f) for f in os.listdir(path) if not os.path.isfile(os.path.join(path, f))]
     for rally in rallys_hits:
+        print(rally)
         files = [os.path.join(rally, f) for f in os.listdir(rally) if os.path.isfile(os.path.join(rally, f))]
         for cam in cams:
             for f_cam in files:
@@ -66,10 +69,9 @@ def loadHit(cams, path):
 
 def getShot(cam, track2ds, hits):
     for r in range(len(track2ds[cam])):
-        print('Rally {}'.format(r))
         for i, (s,e) in enumerate(zip(hits[r][:-1], hits[r][1:])):
-            print(i)
-            # print(s,e)
+            # print('s',i, s,e)
+            # print(track2ds[cam][r][s:e])
             yield track2ds[cam][r][s:e]
 
 def getShotAll(cams, track2ds, hits):
@@ -91,7 +93,7 @@ def getShotAll(cams, track2ds, hits):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--track", type=str, default="real_track/stereo_thesis/track_gt/", help='2D detection result folder')
+    parser.add_argument("--track", type=str, default="real_track/stereo_thesis/track/", help='2D detection result folder')
     parser.add_argument("--mono", type=str, default="cam00", help='pseudo3D camera')
     parser.add_argument("--stereo", type=str, nargs='+', default=["cam00", "cam01"], help='multicam cameras')
     parser.add_argument("--gt", type=str, nargs='+', default=["cam00", "cam01", "cam02", "cam03"], help='multicam cameras for ground truth')
@@ -126,16 +128,19 @@ if __name__ == '__main__':
 
     # 2d data
     track2ds = loadTrack(args.gt, args.track)
-    # print(track2ds)
+    print('total', len(track2ds['cam00']), 'rallies')
 
     # hit point fpr pseudo3d
     hits = loadHit(args.gt, args.hit)
-    # print(hits)
+    print('total', len(hits), 'rallies')
+
+    assert len(track2ds['cam00']) == len(hits), 'number of rally mismatched'
 
     # Form Ground Truth
     print('Forming Ground Truth')
     track3D_gt = []
     visibale_mask = []
+    skip_mask = []
     for idx, shot_all_cam in enumerate(getShotAll(args.gt, track2ds, hits)):
         # print('Shot:', idx)
         track2Ds = [shot_1_cam[:,2:] for shot_1_cam in shot_all_cam]
@@ -153,22 +158,27 @@ if __name__ == '__main__':
         tmpmask = shot_all_cam[0][:,1]
         for mask in [shot_1_cam[:,1] for shot_1_cam in shot_all_cam]:
             tmpmask = np.logical_and(tmpmask, mask)
+        if tmpmask.sum() < 2:
+            skip_mask.append(idx)
+            visibale_mask.append(np.zeros_like(mask)) # dummy input
+            track3D_gt.append(np.zeros_like(mct.track3D)) # dummy input
+            continue
         visibale_mask.append(tmpmask)
-        # print(visibale_mask.astype(int))
-        # print(mct.track3D)
-        # print(mct.track3D[visibale_mask])
         track3D_gt.append(mct.track3D)
-        # if idx == 0:
-        #     print(tmpmask)
-        #     print(mct.track3D)
-        #     break
-            # exit()
+        # if idx == 85:
+        # #     print(tmpmask)
+        #     # print(mct.track3D)
+        # #     break
+        #     exit()
 
     # Form Stereo Prediction
     print('Forming Stereo Prediction')
     track3D_base = []
     for idx, shot_stereo_cam in enumerate(getShotAll(args.stereo, track2ds, hits)):
         # print('Shot:', idx)
+        if idx in skip_mask:
+            track3D_base.append(track3D_gt[idx]) # dummy input
+            continue
         track2Ds = np.array([shot_1_cam[:,2:] for shot_1_cam in shot_stereo_cam])
         h2ps = [H2Pose(np.array(Kmtxs[cam]), np.array(Hmtxs[cam])) for cam in args.stereo]
         poses = np.array([h2p.getC2W() for h2p in h2ps])
@@ -202,6 +212,9 @@ if __name__ == '__main__':
     track3D_pred = []
     for idx, shot_mono_cam in enumerate(getShot(args.mono, track2ds, hits)):
         # print('Shot:', idx)
+        if idx in skip_mask:
+            track3D_pred.append(track3D_gt[idx]) # dummy input
+            continue
         As = track3D_gt[idx][visibale_mask[idx]][0]
         Ae = track3D_gt[idx][visibale_mask[idx]][-1]
         if args.anoise > 0:
@@ -247,10 +260,16 @@ if __name__ == '__main__':
     merrs = []
     perrs = []
     for i, (gt, mask, base, pred) in enumerate(zip(track3D_gt, visibale_mask, track3D_base, track3D_pred)):
+        print('Shot {}'.format(i))
+        if i in skip_mask:
+            print('skipped')
+            continue
+        assert len(gt) == len(base) == len(pred), '{} != {} != {}'.format(len(gt), len(base), len(pred))
+        # print(len(gt), len(base), len(pred))
         merr = dEuler(base[mask], gt[mask])
         perr = dEuler(pred[mask], gt[mask])
-        print('{} MEAN ERROR in one shot (MultiCam):'.format(i), round(merr,2))
-        print('{} MEAN ERROR in one shot (Pseudo3D):'.format(i), round(perr,2))
+        print('MEAN ERROR in one shot (MultiCam):', round(merr,2))
+        print('MEAN ERROR in one shot (Pseudo3D):', round(perr,2))
         merrs.append(merr)
         perrs.append(perr)
 

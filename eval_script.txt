@@ -10,6 +10,7 @@ python eval.py --task mcam14 --data synthetic_track\stereo_thesis\data.json --ca
 python eval.py --task mcam23 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera3\
 python eval.py --task mcam24 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera2\ --cam2 synthetic_track\stereo_thesis\camera4\
 python eval.py --task mcam34 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera3\ --cam2 synthetic_track\stereo_thesis\camera4\
+python eval.py --task mcam1234 --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --cam3 synthetic_track\stereo_thesis\camera3\ --cam4 synthetic_track\stereo_thesis\camera4\
 
 # 2d detection noise
 python eval.py --task pcam1_noise --data synthetic_track\stereo_thesis\data.json --cam1 synthetic_track\stereo_thesis\camera1\ --cam2 synthetic_track\stereo_thesis\camera2\ --noise 5
