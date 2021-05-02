@@ -6,13 +6,33 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from math import pi, tan, sin, cos
+from math import pi, tan, sin, cos, acos
 from synthetic_pseudo3D import Pseudo3d_Synth
 from h2pose.H2Pose import H2Pose
 from triangulation import multiCamTriang
 
 np.set_printoptions(precision=4)
 np.set_printoptions(suppress=True)
+
+def isCoplane(anchors_3d, focal_3d, threshold=pi*85/180):
+    N = anchors_3d[1] - anchors_3d[0]
+    N = np.array([N[1], -1*N[0], 0])
+    mid = (anchors_3d[1] + anchors_3d[0])/2
+    D = mid - focal_3d
+    rad = acos((N*D).sum()/(np.linalg.norm(N)*np.linalg.norm(D)))
+    rad = pi-rad if rad > pi/2 else rad
+    # print(rad*180/pi)
+    assert rad <= pi and rad >= 0
+    return rad > threshold
+
+# def isCoplane(anchors_3d, focal_3d, threshold=0.1):
+#     N = anchors_3d[1] - anchors_3d[0]
+#     N = np.array([N[1], -1*N[0], 0])
+#     mid = (anchors_3d[1] + anchors_3d[0])/2
+#     D = mid - focal_3d
+#     inner = (N*D).sum()/(np.linalg.norm(N)*np.linalg.norm(D))
+#     print(inner)
+#     return abs(inner) < threshold
 
 def toRad(deg):
     return deg*pi/180
@@ -126,7 +146,7 @@ if __name__ == '__main__':
         else:
             As_ = As
             Ae_ = Ae
-
+        
         tf = Pseudo3d_Synth(
             track2D=track2d,
             args=args, 
@@ -136,12 +156,19 @@ if __name__ == '__main__':
             anchors=(As_, Ae_)
         )
         # print(tf.updateF(silence=True))
+        if isCoplane((np.array([As_[0],As_[1],0]), np.array([Ae_[0],Ae_[1],0])), tf.Cam_wcs.reshape(-1)):
+            print('{} Coplane skipping...'.format(i))
+            continue
 
         if args.pnoise > 0:
             err = dEuler(tf.updateF(silence=True, noise=args.pnoise), np.array(curve(As, Ae)))
         else:
             err = dEuler(tf.updateF(silence=True), np.array(curve(As, Ae)))
         print('{} MEAN ERROR in one shot (Pseudo3D):'.format(i), err)
+        # print()
+        # if i == 543:
+        #     print(tf.Cam_wcs.reshape(-1))
+        #     exit()
         perr.append(err)
         # print(As, Ae)
         # break
@@ -151,7 +178,7 @@ if __name__ == '__main__':
     print('Overall:', center.sum()/len(center))
 
 
-
+    # exit()
 
     # get C2W
     h2p1 = H2Pose(Kmtx, Hmtx_cam1)

@@ -221,7 +221,7 @@ def drawFunc():
         if tf.gt:
             sphere(i[0], i[1], i[2], color=[0,1,1], size = size)
         else:
-            sphere(i[0], i[1], i[2], color=[1,1,0], size = size)
+            sphere(i[0], i[1], i[2], color=[0,1,0], size = size)
 
     print("Focal length offset:", tf._f, "Deg:", toDeg(tf.rad))
     print()
