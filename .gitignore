@@ -132,7 +132,7 @@ sssss.py
 122.jpg
 *.png
 *.csv
-oral*
+oral/*
 check.py
 h2pose/*
 Hfinder.py
