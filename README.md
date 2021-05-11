@@ -24,6 +24,7 @@ $ pip install scikit-learn
 $ pip install PyOpenGL-3.1.5-cp38-cp38-win_amd64.whl
 
 # [For ubuntu]
+$ apt-get install freeglut3-dev
 $ pip install PyOpenGL
 ```
 
