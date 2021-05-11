@@ -7,13 +7,13 @@ import pandas as pd
 from OpenGL.GLU import *
 from OpenGL.GL import *
 from OpenGL.GLUT import *
-from math import sqrt, pi, sin, cos, tan
+from math import pi, sin, cos
 
 from h2pose.Hfinder import Hfinder
 from h2pose.H2Pose import H2Pose
 from trackDetector import trackDetector
 from tracker2D import tracker2D
-from generator import startGL, readPose, toRad, toDeg, drawCourt, drawNet, drawCircle, patternCircle, drawTrack
+from generator import startGL, toRad, toDeg, drawCourt, drawNet
 
 np.set_printoptions(precision=4)
 np.set_printoptions(suppress=True)
